@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-//import { Menu, X } from 'lucide-react';
-//import { Button } from "@/components/ui/button";
+import { Menu, X } from 'lucide-react';
+import { Button } from './ui/button';
 
 const navigationLinks = [
   { name: "Nosotros", href: "/nosotros" },
@@ -70,13 +70,13 @@ const Navbar = () => {
           </div>
 
           <div className="md:hidden">
-            <button
+            <Button
               onClick={() => setIsOpen(!isOpen)}
               className="text-gray-700 hover:text-tea-blue focus:outline-none"
               aria-label="Abrir menú"
             >
               {isOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
+            </Button>
           </div>
         </div>
 

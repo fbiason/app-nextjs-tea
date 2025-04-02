@@ -1,7 +1,7 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { Facebook, Instagram, MessageCircle, Mail, PhoneCall, MapPin } from 'lucide-react';
+import Link from 'next/link';
 
 const Footer = () => {
   return (
@@ -47,13 +47,13 @@ const Footer = () => {
             <h3 className="text-xl font-bold mb-4">Enlaces Rápidos</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/nosotros" className="text-gray-300 hover:text-white transition-colors">
-                  <span>Sobre</span>{' '}
+                <Link href="/nosotros" className="text-gray-300 hover:text-white transition-colors">
+                  <span>Sobre</span>
                   <span>Nosotros</span>
                 </Link>
               </li>
               <li>
-                <Link to="/contacto" className="text-gray-300 hover:text-white transition-colors">
+                <Link href="/contacto" className="text-gray-300 hover:text-white transition-colors">
                   <span>Contacto</span>
                 </Link>
               </li>
@@ -65,27 +65,27 @@ const Footer = () => {
             <h3 className="text-xl font-bold mb-4">Programas</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/acciones#mateamos" className="text-gray-300 hover:text-white transition-colors">
+                <Link href="/ acciones#mateamos" className="text-gray-300 hover:text-white transition-colors">
                   MaTEAmos
                 </Link>
               </li>
               <li>
-                <Link to="/acciones#pileteamos" className="text-gray-300 hover:text-white transition-colors">
+                <Link href="/acciones#pileteamos" className="text-gray-300 hover:text-white transition-colors">
                   PileTEAmos
                 </Link>
               </li>
               <li>
-                <Link to="/acciones#legal" className="text-gray-300 hover:text-white transition-colors">
+                <Link href="/acciones#legal" className="text-gray-300 hover:text-white transition-colors">
                   Orientación Legal
                 </Link>
               </li>
               <li>
-                <Link to="/acciones#teacompana" className="text-gray-300 hover:text-white transition-colors">
+                <Link href="/acciones#teacompana" className="text-gray-300 hover:text-white transition-colors">
                   TEAcompaña
                 </Link>
               </li>
               <li>
-                <Link to="/acciones#congresos" className="text-gray-300 hover:text-white transition-colors">
+                <Link href="/acciones#congresos" className="text-gray-300 hover:text-white transition-colors">
                   Congresos
                 </Link>
               </li>

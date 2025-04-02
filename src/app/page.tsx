@@ -6,8 +6,8 @@ import Hero from '@/components/Hero';
 import AboutSection from '@/components/AboutSection';
 import ProgramsSection from '@/components/ProgramsSection';
 import Footer from '@/components/Footer';
-//import { Button } from "@/components/ui/button";
 import Image from 'next/image';
+import { Button } from '@/components/ui/button';
 
 const Index = () => {
   return (

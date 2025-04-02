@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { CreditCard, Landmark, MessageCircle, Heart, CheckCircle2, Shield } from 'lucide-react';
 import DonationForm from '@/components/DonationForm';
-import Image from 'next/image';
 
 const Donaciones = () => {
   const [showForm, setShowForm] = useState(false);
