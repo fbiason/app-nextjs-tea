@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-//import { Menu, X } from 'lucide-react';
-//import { Button } from "@/components/ui/button";
+import { Menu, X } from 'lucide-react';
+import { Button } from "@/components/ui/button";
 
 const navigationLinks = [
   { name: "Nosotros", href: "/nosotros" },
