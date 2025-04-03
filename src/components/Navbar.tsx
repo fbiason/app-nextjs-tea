@@ -51,9 +51,9 @@ const Navbar = () => {
         <div className="container mx-auto px-4 flex justify-between items-center">
           <Link href="/" className="flex items-center space-x-2 h-16">
             <img src="/images/logo.png" alt="Logo" className="h-16 w-auto" />
-            <div className="font-montserrat font-bold text-2xl text-tea-yellow leading-none">
-              Fundación <span className="text-tea-orange">TEA</span>{' '}
-              <span className="text-tea-green">Santa Cruz</span>
+            <div className="font-montserrat font-bold text-2xl leading-none">
+              <span style={{ color: '#f6bb3f' }}>Fundación</span> <span style={{ color: '#e17a2d' }}>TEA</span>{' '}
+              <span style={{ color: '#99b169' }}>Santa Cruz</span>
             </div>
           </Link>
 
