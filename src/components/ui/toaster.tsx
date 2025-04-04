@@ -1,4 +1,4 @@
-import { useToast } from "@/hooks/use-toast"
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Toast,
   ToastClose,
@@ -7,13 +7,14 @@ import {
   ToastTitle,
   ToastViewport,
 } from "@/components/ui/toast"
+import { useToast } from "./use-toast"
 
 export function Toaster() {
   const { toasts } = useToast()
 
   return (
     <ToastProvider>
-      {toasts.map(function ({ id, title, description, action, ...props }) {
+      {toasts.map(function ({ id, title, description, action, ...props }: any) {
         return (
           <Toast key={id} {...props}>
             <div className="grid gap-1">
