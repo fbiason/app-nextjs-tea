@@ -1,13 +1,12 @@
 'use client';
+
 import DonationForm from '@/components/DonationForm';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle2, CreditCard, Heart, Landmark, MessageCircle, Shield } from 'lucide-react';
-import { useState } from 'react';
 
 const DonationPage = () => {
-    const [showForm, setShowForm] = useState(false);
 
     return (
         <div className="min-h-screen flex flex-col">
@@ -21,7 +20,6 @@ const DonationPage = () => {
                         </p>
                         <Button
                             className="bg-white text-tea-blue hover:bg-gray-100"
-                            onClick={() => setShowForm(true)}
                         >
                             <Heart className="mr-2" size={20} />
                             Donar Ahora
@@ -78,39 +76,21 @@ const DonationPage = () => {
 
 
                 {/* Formulario de donación */}
-                {showForm ? (
-                    <section className="py-16 bg-white" id="formulario-donacion">
-                        <div className="container mx-auto px-4">
-                            <h2 className="text-3xl font-bold text-center mb-6">Realiza una Donación Online</h2>
-                            <p className="text-center text-gray-600 max-w-3xl mx-auto mb-12">
-                                Puedes realizar una donación única o recurrente a través de nuestro sistema seguro.
-                                Todos los pagos están encriptados y protegidos.
-                            </p>
+                <section className="py-16 bg-white" id="formulario-donacion">
+                    <div className="container mx-auto px-4">
+                        <h2 className="text-3xl font-bold text-center mb-6">Realiza una Donación Online</h2>
+                        <p className="text-center text-gray-600 max-w-3xl mx-auto mb-12">
+                            Puedes realizar una donación única o recurrente a través de nuestro sistema seguro.
+                            Todos los pagos están encriptados y protegidos.
+                        </p>
 
-                            <Card className="max-w-4xl mx-auto shadow-lg">
-                                <CardContent className="pt-6">
-                                    <DonationForm />
-                                </CardContent>
-                            </Card>
-                        </div>
-                    </section>
-                ) : (
-                    <section className="py-16 bg-white">
-                        <div className="container mx-auto px-4 text-center">
-                            <h2 className="text-3xl font-bold mb-6">Donaciones Online</h2>
-                            <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-8">
-                                También puedes realizar donaciones con tarjeta de crédito o débito de forma segura
-                                a través de nuestro sistema de pago online.
-                            </p>
-                            <Button
-                                className="bg-tea-blue hover:bg-blue-700"
-                                onClick={() => setShowForm(true)}
-                            >
-                                Hacer Donación Online
-                            </Button>
-                        </div>
-                    </section>
-                )}
+                        <Card className="max-w-4xl mx-auto shadow-lg">
+                            <CardContent className="pt-6">
+                                <DonationForm />
+                            </CardContent>
+                        </Card>
+                    </div>
+                </section>
 
                 {/* Métodos de donación */}
                 <section className="py-16 bg-gray-50">
