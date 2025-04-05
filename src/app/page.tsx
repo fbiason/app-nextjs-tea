@@ -8,6 +8,7 @@ import ProgramsSection from '@/components/ProgramsSection';
 import Footer from '@/components/Footer';
 import Image from 'next/image';
 import { ChevronDown, ChevronUp } from 'lucide-react';
+import ContactForm from '@/components/ContactForm';
 import { Button } from '@/components/ui/button';
 
 const faqs = [
@@ -135,37 +136,7 @@ const Index = () => {
           </p>
 
           <div className="max-w-lg mx-auto bg-white p-6 rounded-lg shadow-lg">
-            <form className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input
-                  type="text"
-                  placeholder="Nombre"
-                  className="border border-gray-300 rounded-md p-2 w-full"
-                  required
-                />
-                <input
-                  type="email"
-                  placeholder="Email"
-                  className="border border-gray-300 rounded-md p-2 w-full"
-                  required
-                />
-              </div>
-              <input
-                type="text"
-                placeholder="Asunto"
-                className="border border-gray-300 rounded-md p-2 w-full"
-                required
-              />
-              <textarea
-                placeholder="Mensaje"
-                rows={4}
-                className="border border-gray-300 rounded-md p-2 w-full"
-                required
-              ></textarea>
-              <Button className="w-full bg-[#99b169] hover:bg-green-600 text-white font-semibold">
-                Enviar Mensaje
-              </Button>
-            </form>
+  <ContactForm />
           </div>
         </div>
       </section>
@@ -177,7 +148,6 @@ const Index = () => {
       >
         <ChevronUp size={24} />
       </button>
-
       <Footer />
     </div>
   );
