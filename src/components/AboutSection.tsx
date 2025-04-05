@@ -3,7 +3,7 @@ import { Heart, Users, Star, Award } from 'lucide-react';
 
 const AboutSection = () => {
   return (
-    <section className="section bg-white py-20">
+    <section id="nosotros" className="section bg-white py-20">
       <div className="container mx-auto">
         {/* Encabezado principal */}
         <div className="text-center mb-12">
@@ -22,7 +22,7 @@ const AboutSection = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
           <div className="bg-white p-6 rounded-lg shadow-lg text-center hover:shadow-xl transition-shadow">
             <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Heart size={32} className="text-[#1e40af]" />
+              <Heart size={32} className="text-[#165a91]" />
             </div>
             <h3 className="text-xl font-bold mb-2">Compromiso</h3>
             <p className="text-gray-600">

@@ -3,12 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
-import { Button } from './ui/button';
 
 const navigationLinks = [
-  { name: "Nosotros", href: "/nosotros" },
-  { name: "Acciones", href: "/acciones" },
-  { name: "Contacto", href: "/contacto" },
+  { name: "Nosotros", href: "#nosotros" },
+  { name: "Acciones", href: "#acciones" },
+  { name: "Contacto", href: "#contacto" },
   { name: "Donaciones", href: "/donaciones" },
 ];
 
@@ -22,76 +21,57 @@ const Navbar = () => {
     };
 
     window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   useEffect(() => {
-    document.body.style.overflow = isOpen ? 'hidden' : 'auto';
+    document.body.classList.toggle('menu-open', isOpen);
   }, [isOpen]);
+  
 
   return (
     <>
-      {!isScrolled && (
-        <div
-          className={`w-full bg-gradient-to-r from-tea-green to-blue-500 text-white text-sm text-center py-2 font-montserrat transition-opacity duration-500 ${
-            isScrolled ? 'opacity-0 pointer-events-none' : 'opacity-100'
-          }`}
-        >
-          #somosinfinitos
-        </div>
-      )}
+      {/* Topbar fijo */}
+      <div className="w-full bg-gradient-to-r from-tea-green to-blue-500 text-white text-sm text-center py-1.5 font-montserrat fixed top-0 z-50">
+        #somosinfinitos
+      </div>
 
+      {/* Navbar principal pegado al topbar */}
       <nav
-        className={`fixed w-full z-50 transition-all duration-300 backdrop-blur-sm ${
+        className={`fixed top-8 w-full z-40 transition-all duration-300 backdrop-blur-sm ${
           isScrolled ? 'bg-white shadow-md py-2' : 'bg-white py-4'
         }`}
       >
         <div className="container mx-auto px-4 flex justify-between items-center">
           <Link href="/" className="flex items-center space-x-2 h-16">
-            <img src="/images/logo.png" alt="Logo" className="h-16 w-auto" />
-            <div className="font-montserrat font-bold text-2xl leading-none">
-              <span style={{ color: '#f6bb3f' }}>Fundación</span> <span style={{ color: '#e17a2d' }}>TEA</span>{' '}
+            <img src="/images/logo.png" alt="Logo" className="h-12 w-auto" />
+            <div className="font-montserrat font-bold text-xl leading-none">
+              <span style={{ color: '#f6bb3f' }}>Fundación</span>{' '}
+              <span style={{ color: '#e17a2d' }}>TEA</span>{' '}
               <span style={{ color: '#99b169' }}>Santa Cruz</span>
             </div>
           </Link>
 
+          {/* Botón hamburguesa (solo se muestra cuando el menú está cerrado) */}
+          {!isOpen && (
+            <div className="md:hidden z-50 relative">
+              <button
+                onClick={() => setIsOpen(true)}
+                className="text-gray-700 hover:text-tea-blue focus:outline-none z-50 relative"
+              >
+                <Menu size={24} />
+              </button>
+            </div>
+          )}
+
+          {/* Menú desktop */}
           <div className="hidden md:flex space-x-8">
             {navigationLinks.map((link) => (
               <Link
                 key={link.name}
                 href={link.href}
                 className="font-montserrat text-gray-700 hover:text-tea-blue hover:font-semibold transition-all duration-300"
-              >
-                {link.name}
-              </Link>
-            ))}
-          </div>
-
-          <div className="md:hidden">
-            <Button
-              onClick={() => setIsOpen(!isOpen)}
-              className="text-gray-700 hover:text-tea-blue focus:outline-none"
-              aria-label="Abrir menú"
-            >
-              {isOpen ? <X size={24} /> : <Menu size={24} />}
-            </Button>
-          </div>
-        </div>
-
-        <div
-          className={`md:hidden absolute top-full left-0 right-0 bg-white shadow-md transition-transform duration-300 ease-in-out transform text-xl md:text-2xl ${
-            isOpen ? 'translate-y-0' : '-translate-y-full'
-          }`}
-        >
-          <div className="container mx-auto px-4 py-4 flex flex-col space-y-4">
-            {navigationLinks.map((link) => (
-              <Link
-                key={link.name}
-                href={link.href}
-                className="font-montserrat text-gray-700 hover:text-tea-blue py-2 transition-colors duration-300"
-                onClick={() => setIsOpen(false)}
+                scroll={link.href.startsWith('#')}
               >
                 {link.name}
               </Link>
@@ -99,6 +79,33 @@ const Navbar = () => {
           </div>
         </div>
       </nav>
+
+      {/* Menú mobile como overlay */}
+      <div className="px-6 pt-6 pb-6 flex flex-col space-y-6 relative h-full md:px-0">
+  {/* Botón de cerrar */}
+  <button
+    onClick={() => setIsOpen(false)}
+    className="absolute top-6 right-6 text-black z-50 focus:outline-none"
+  >
+    <X size={28} />
+  </button>
+
+  {/* Enlaces de navegación */}
+  <div className="flex flex-col justify-center items-start h-full space-y-6">
+    {navigationLinks.map((link) => (
+      <Link
+        key={link.name}
+        href={link.href}
+        className="font-montserrat text-gray-700 hover:text-tea-blue text-xl transition-colors duration-300"
+        scroll={link.href.startsWith('#')}
+        onClick={() => setIsOpen(false)}
+      >
+        {link.name}
+      </Link>
+    ))}
+  </div>
+</div>
+
     </>
   );
 };

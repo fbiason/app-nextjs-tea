@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Button } from "./ui/button";
+import Link from 'next/link';
 
 const images = [
   "/images/hero-1.webp",
@@ -65,14 +66,18 @@ const Hero = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-            <Button className="bg-[#f6bb3f] hover:bg-yellow-600 text-lg text-black hover:text-white py-6 px-8 font-semibold shadow-md hover:shadow-lg">
-              Conocer Más
-            </Button>
-            <Button
-  className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white text-lg py-6 px-8 font-semibold shadow-lg transition-colors duration-300"
->
-  Realiza una donación
-</Button>
+            <Link href="#nosotros" passHref>
+              <Button className="bg-[#f6bb3f] hover:bg-yellow-600 text-lg text-black hover:text-white py-6 px-8 font-semibold shadow-md hover:shadow-lg">
+                Conocer Más
+              </Button>
+            </Link>
+            <Link href="/donaciones" passHref>
+              <Button
+                className="bg-[#165a91] hover:bg-[#1d4ed8] text-white text-lg py-6 px-8 font-semibold shadow-lg transition-colors duration-300"
+              >
+                Realiza una donación
+              </Button>
+            </Link>
           </div>
         </div>
       </div>

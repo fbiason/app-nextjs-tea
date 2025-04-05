@@ -34,6 +34,10 @@ const Index = () => {
     setOpenIndex(openIndex === index ? null : index);
   };
 
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
@@ -120,7 +124,7 @@ const Index = () => {
       </section>
 
       {/* Contacto */}
-      <section className="section bg-white py-20">
+      <section id="contacto" className="section bg-white py-20">
         <div className="container mx-auto text-center">
         <h2 className="text-3xl md:text-4xl font-bold mb-4 font-montserrat" style={{ color: '#165a91' }}>
   Contacta con Nosotros
@@ -165,6 +169,14 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      <button
+        onClick={scrollToTop}
+        className="fixed bottom-4 right-4 bg-[#e17a2d] text-white p-3 rounded-full shadow-lg hover:bg-orange-600 transition-all"
+        aria-label="Back to top"
+      >
+        <ChevronUp size={24} />
+      </button>
 
       <Footer />
     </div>

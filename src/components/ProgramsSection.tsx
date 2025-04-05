@@ -61,7 +61,7 @@ const programs = [
 
 const ProgramsSection = () => {
   return (
-    <section className="bg-gray-50 py-20">
+    <section id="acciones" className="bg-gray-50 py-20">
       <div className="container mx-auto px-4">
         {/* Encabezado */}
         <div className="text-center mb-12">
@@ -100,7 +100,7 @@ const ProgramsSection = () => {
                       </span>
                     </>
                   ) : (
-                    <span className="text-[#1e40af]">{program.name}</span>
+                    <span className="text-[#165a91]">{program.name}</span>
                   )}
                 </h3>
                 <p className="text-gray-600 mb-4 flex-grow">

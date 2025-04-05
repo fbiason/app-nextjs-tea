@@ -127,3 +127,6 @@
 .read-the-docs {
   color: #888;
 }
+body.menu-open {
+  overflow: hidden;
+}
