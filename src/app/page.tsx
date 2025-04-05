@@ -85,7 +85,7 @@ const Index = () => {
       </section>
 
       {/* Preguntas Frecuentes */}
-      <section className="section bg-gray-50 py-20">
+      <section className="section bg-gray-50 py-20 px-4 sm:px-6">
         <div className="container mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4 font-montserrat">
             <span style={{ color: '#f6bb3f' }}>Preguntas</span>{" "}
@@ -124,7 +124,7 @@ const Index = () => {
       </section>
 
       {/* Contacto */}
-      <section id="contacto" className="section bg-white py-20">
+      <section id="contacto" className="section bg-white py-20 px-4 md:px-0 scroll-mt-32">
         <div className="container mx-auto text-center">
         <h2 className="text-3xl md:text-4xl font-bold mb-4 font-montserrat" style={{ color: '#165a91' }}>
   Contacta con Nosotros
@@ -172,7 +172,7 @@ const Index = () => {
 
       <button
         onClick={scrollToTop}
-        className="fixed bottom-4 right-4 bg-[#e17a2d] text-white p-3 rounded-full shadow-lg hover:bg-orange-600 transition-all"
+        className="fixed bottom-4 right-4 bg-[#e17a2d] text-white p-3 rounded-full shadow-lg hover:bg-orange-600 transition-all md:block"
         aria-label="Back to top"
       >
         <ChevronUp size={24} />

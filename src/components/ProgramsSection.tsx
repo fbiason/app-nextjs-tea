@@ -61,7 +61,7 @@ const programs = [
 
 const ProgramsSection = () => {
   return (
-    <section id="acciones" className="bg-gray-50 py-20">
+    <section id="acciones" className="bg-gray-50 py-20 px-4 md:px-0 scroll-mt-32">
       <div className="container mx-auto px-4">
         {/* Encabezado */}
         <div className="text-center mb-12">

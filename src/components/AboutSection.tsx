@@ -3,7 +3,7 @@ import { Heart, Users, Star, Award } from 'lucide-react';
 
 const AboutSection = () => {
   return (
-    <section id="nosotros" className="section bg-white py-20">
+    <section id="nosotros" className="section bg-white py-20 px-4 md:px-0 scroll-mt-32">
       <div className="container mx-auto">
         {/* Encabezado principal */}
         <div className="text-center mb-12">

@@ -9,7 +9,7 @@ const Footer = () => {
   const [modalOpen, setModalOpen] = useState(false);
 
   return (
-    <footer className="bg-[#1a1a1a] text-white pt-12 pb-6">
+    <footer className="bg-[#1a1a1a] text-white pt-12 pb-6 px-4 sm:px-6">
       <div className="container mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {/* About Column */}
@@ -126,8 +126,8 @@ const LegalModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
-      <div className="bg-white text-black rounded-lg max-w-3xl w-full p-6 overflow-y-auto max-h-[80vh] relative">
+    <div className="fixed inset-0 bg-neutral-800/50 flex items-center justify-center z-50">
+<div className="bg-white text-black rounded-lg max-w-3xl w-full p-6 sm:px-6 mx-4 sm:mx-0 overflow-y-auto max-h-[80vh] relative">
         <button
           onClick={onClose}
           className="absolute top-3 right-3 text-gray-700 hover:text-black"

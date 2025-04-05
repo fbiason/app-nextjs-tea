@@ -19,30 +19,25 @@ const Navbar = () => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
     };
-
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  useEffect(() => {
-    document.body.classList.toggle('menu-open', isOpen);
-  }, [isOpen]);
-  
-
   return (
     <>
-      {/* Topbar fijo */}
+      {/* Topbar */}
       <div className="w-full bg-gradient-to-r from-tea-green to-blue-500 text-white text-sm text-center py-1.5 font-montserrat fixed top-0 z-50">
         #somosinfinitos
       </div>
 
-      {/* Navbar principal pegado al topbar */}
+      {/* Navbar */}
       <nav
         className={`fixed top-8 w-full z-40 transition-all duration-300 backdrop-blur-sm ${
           isScrolled ? 'bg-white shadow-md py-2' : 'bg-white py-4'
         }`}
       >
         <div className="container mx-auto px-4 flex justify-between items-center">
+          {/* Logo */}
           <Link href="/" className="flex items-center space-x-2 h-16">
             <img src="/images/logo.png" alt="Logo" className="h-12 w-auto" />
             <div className="font-montserrat font-bold text-xl leading-none">
@@ -52,17 +47,15 @@ const Navbar = () => {
             </div>
           </Link>
 
-          {/* Botón hamburguesa (solo se muestra cuando el menú está cerrado) */}
-          {!isOpen && (
-            <div className="md:hidden z-50 relative">
-              <button
-                onClick={() => setIsOpen(true)}
-                className="text-gray-700 hover:text-tea-blue focus:outline-none z-50 relative"
-              >
-                <Menu size={24} />
-              </button>
-            </div>
-          )}
+          {/* Botón hamburguesa */}
+          <div className="md:hidden">
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="text-gray-700 hover:text-tea-blue focus:outline-none"
+            >
+              {isOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
 
           {/* Menú desktop */}
           <div className="hidden md:flex space-x-8">
@@ -78,34 +71,28 @@ const Navbar = () => {
             ))}
           </div>
         </div>
+
+        {/* Menú mobile desplegable */}
+        <div
+          className={`md:hidden overflow-hidden transition-[max-height] duration-300 ease-in-out bg-white ${
+            isOpen ? 'max-h-96' : 'max-h-0'
+          }`}
+        >
+          <div className="flex flex-col px-6 py-4 space-y-4">
+            {navigationLinks.map((link) => (
+              <Link
+                key={link.name}
+                href={link.href}
+                className="font-montserrat text-gray-700 hover:text-tea-blue text-lg transition-colors duration-300"
+                scroll={link.href.startsWith('#')}
+                onClick={() => setIsOpen(false)}
+              >
+                {link.name}
+              </Link>
+            ))}
+          </div>
+        </div>
       </nav>
-
-      {/* Menú mobile como overlay */}
-      <div className="px-6 pt-6 pb-6 flex flex-col space-y-6 relative h-full md:px-0">
-  {/* Botón de cerrar */}
-  <button
-    onClick={() => setIsOpen(false)}
-    className="absolute top-6 right-6 text-black z-50 focus:outline-none"
-  >
-    <X size={28} />
-  </button>
-
-  {/* Enlaces de navegación */}
-  <div className="flex flex-col justify-center items-start h-full space-y-6">
-    {navigationLinks.map((link) => (
-      <Link
-        key={link.name}
-        href={link.href}
-        className="font-montserrat text-gray-700 hover:text-tea-blue text-xl transition-colors duration-300"
-        scroll={link.href.startsWith('#')}
-        onClick={() => setIsOpen(false)}
-      >
-        {link.name}
-      </Link>
-    ))}
-  </div>
-</div>
-
     </>
   );
 };
