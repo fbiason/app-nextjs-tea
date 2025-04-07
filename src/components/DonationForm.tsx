@@ -50,18 +50,29 @@ const DonationForm = () => {
         setLoading(true);
 
         try {
-            // Aquí implementaríamos la conexión real con la pasarela de pagos
-            console.log("Datos de donación:", data);
+            // Guardamos los datos de la donación en localStorage para recuperarlos en la página de agradecimiento
+            localStorage.setItem('lastDonation', JSON.stringify(data));
+            
+            // Enviamos los datos al endpoint de donaciones
+            const response = await fetch('/api/donations', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
 
-            // Simulamos un proceso de pago
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            const result = await response.json();
 
-            alert("¡Gracias por tu donación! Hemos procesado tu contribución con éxito.");
-            form.reset();
+            if (!result.success) {
+                throw new Error(result.error || 'Error al procesar la donación');
+            }
+
+            // Redirigimos al usuario a la página de pago de MercadoPago
+            window.location.href = result.init_point;
         } catch (error) {
             console.error("Error procesando la donación:", error);
             alert("Ocurrió un error al procesar tu donación. Por favor intenta nuevamente.");
-        } finally {
             setLoading(false);
         }
     };
@@ -282,7 +293,7 @@ const DonationForm = () => {
                 </Button>
 
                 <div className="text-center text-sm text-gray-500">
-                    <p>Esta donación se procesará a través de la plataforma segura de DonarOnline, en alianza con MercadoPago</p>
+                    <p>Esta donación se procesará a través de la plataforma segura de MercadoPago</p>
                 </div>
             </form>
         </Form>

@@ -2,11 +2,14 @@
   "name": "app-tea",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "tunnel": "ngrok http 3000",
+    "lt": "lt --port 3000 --subdomain tea-donaciones"
   },
   "dependencies": {
     "@formspree/react": "^3.0.0",

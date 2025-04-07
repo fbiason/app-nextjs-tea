@@ -1,15 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
-import Navbar from '@/components/Navbar';
-import Hero from '@/components/Hero';
 import AboutSection from '@/components/AboutSection';
-import ProgramsSection from '@/components/ProgramsSection';
-import Footer from '@/components/Footer';
-import Image from 'next/image';
-import { ChevronDown, ChevronUp } from 'lucide-react';
 import ContactForm from '@/components/ContactForm';
-import { Button } from '@/components/ui/button';
+import Footer from '@/components/Footer';
+import Hero from '@/components/Hero';
+import Navbar from '@/components/Navbar';
+import ProgramsSection from '@/components/ProgramsSection';
+import { ChevronDown, ChevronUp } from 'lucide-react';
+import Image from 'next/image';
+import { useState } from 'react';
 
 const faqs = [
   {
