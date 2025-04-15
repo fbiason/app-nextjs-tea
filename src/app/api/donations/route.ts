@@ -6,7 +6,7 @@ import { z } from "zod";
 const donationSchema = z.object({
   amount: z.string().min(1, "Selecciona o ingresa un monto"),
   frequency: z.enum(["monthly", "once"]),
-  automaticIncrease: z.boolean().optional(),
+  anonymous: z.boolean().optional(),
   firstName: z.string().min(2, "Nombre demasiado corto"),
   lastName: z.string().min(2, "Apellido demasiado corto"),
   email: z.string().email("Email inválido"),
@@ -58,8 +58,8 @@ export async function POST(request: Request) {
             title,
             quantity: 1,
             unit_price: amount,
-            currency_id: "ARS",
-          },
+            currency_id: "ARS"
+          }
         ],
         // Agregamos la comisión de la plataforma si está configurada
         marketplace_fee: platformCommission,
@@ -76,7 +76,7 @@ export async function POST(request: Request) {
           donor_email: validatedData.email,
           donor_phone: validatedData.phone,
           donation_type: validatedData.frequency,
-          anonymous: validatedData.automaticIncrease || false,
+          anonymous: validatedData.anonymous ?? false,
         },
         back_urls: {
           success: `${process.env.APP_URL}/donaciones/gracias`,

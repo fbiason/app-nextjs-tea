@@ -26,17 +26,36 @@ export async function POST(request: Request) {
 
     // Procesamos el pago según su estado
     if (payment.status === "approved") {
-      // Aquí se puede implementar lógica adicional como:
-      // - Registrar la donación en una base de datos
-      // - Enviar email de agradecimiento al donante
-      // - Actualizar estadísticas de donaciones
-      console.log("Donación aprobada:", {
-        id: payment.id,
-        amount: payment.transaction_amount,
-        donor: payment.metadata?.donor_name || "Anónimo",
-        email: payment.metadata?.donor_email,
-        type: payment.metadata?.donation_type
-      });
+      // Guardar la donación en la base de datos
+      try {
+        const { PrismaClient } = await import("@prisma/client");
+        const prisma = new PrismaClient();
+
+        const isAnonymous = payment.metadata?.anonymous === true || payment.metadata?.anonymous === 'true';
+        const donorName = isAnonymous ? null : payment.metadata?.donor_name;
+        const donorEmail = isAnonymous ? null : payment.metadata?.donor_email;
+        const donorPhone = isAnonymous ? null : payment.metadata?.donor_phone;
+        const frequency = payment.metadata?.frequency || "once"; // Si no se especifica, asumimos donación única
+
+        const amount = payment.transaction_amount;
+        if (typeof amount !== "number") {
+          throw new Error("El monto de la donación no está definido en el pago recibido.");
+        }
+        await prisma.donation.create({
+          data: {
+            amount,
+            anonymous: isAnonymous,
+            donorName: donorName,
+            donorEmail: donorEmail,
+            phone: donorPhone,
+            frequency: frequency,
+            createdAt: new Date(payment.date_approved || Date.now())
+          }
+        });
+        await prisma.$disconnect();
+      } catch (dbError) {
+        console.error("Error guardando la donación en la base de datos:", dbError);
+      }
     }
 
     // Respondemos con un estado 200 para indicarle a MercadoPago que la notificación fue recibida
