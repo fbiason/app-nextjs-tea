@@ -45,6 +45,22 @@ const DonationForm = () => {
     }
   });
 
+  // Estado local para controlar la donación anónima
+  const [isAnonymous, setIsAnonymous] = useState(false);
+  
+  // Manejador para el cambio en el checkbox de donación anónima
+  const handleAnonymousChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const checked = e.target.checked;
+    setIsAnonymous(checked);
+    form.setValue("anonymous", checked);
+    
+    // Si es anónimo, forzamos a que sea donación única
+    if (checked) {
+      form.setValue("frequency", "once");
+    }
+  };
+
+
   // Función que se ejecuta con un formulario válido
   const onSubmit = async (data: DonationFormValues) => {
     setLoading(true);
@@ -147,8 +163,8 @@ const DonationForm = () => {
               onChange={handleCustomAmountChange}
               placeholder="Ingrese monto personalizado"
               className={`border rounded-md w-full p-2 transition-all ${selectedAmount === null
-                  ? "border-[#f6bb3f] focus:ring-2 focus:ring-[#e17a2d]"
-                  : "border-gray-300"
+                ? "border-[#f6bb3f] focus:ring-2 focus:ring-[#e17a2d]"
+                : "border-gray-300"
                 }`}
             />
           </div>
@@ -158,40 +174,60 @@ const DonationForm = () => {
             <p className="text-red-500 text-sm">{form.formState.errors.amount.message}</p>
           )}
         </div>
-        {/* Frecuencia de donación */}
-        <div className="space-y-3">
-          <h3 className="text-xl font-semibold text-[#e17a2d] uppercase tracking-wide">
-            ¿CON QUÉ FRECUENCIA QUERÉS DONAR?
-          </h3>
+        {/* Frecuencia de donación - Solo visible si no es anónima */}
+        {!isAnonymous && (
+          <div className="space-y-3">
+            <h3 className="text-xl font-semibold text-[#e17a2d] uppercase tracking-wide">
+              ¿CON QUÉ FRECUENCIA QUERÉS DONAR?
+            </h3>
 
-          <div className="flex items-center gap-6">
-            <label className="flex items-center space-x-2 cursor-pointer">
-              <input
-                type="radio"
-                value="monthly"
-                {...form.register("frequency")}
-                checked={form.watch("frequency") === "monthly"}
-                className="h-5 w-5 text-[#99b169] focus:ring-2 focus:ring-[#f6bb3f]"
-              />
-              <span className="text-sm font-medium text-gray-800">Mensual</span>
-            </label>
+            {form.watch("anonymous") && (
+              <div className="text-sm text-amber-600 bg-amber-50 p-2 rounded border border-amber-200 flex items-center gap-2">
+                <ShieldCheck size={16} className="text-amber-600" />
+                <span>Las donaciones anónimas solo pueden realizarse por única vez</span>
+              </div>
+            )}
 
-            <label className="flex items-center space-x-2 cursor-pointer">
-              <input
-                type="radio"
-                value="once"
-                {...form.register("frequency")}
-                checked={form.watch("frequency") === "once"}
-                className="h-5 w-5 text-[#99b169] focus:ring-2 focus:ring-[#f6bb3f]"
-              />
-              <span className="text-sm font-medium text-gray-800">Única vez</span>
-            </label>
+            <div className="flex items-center gap-6">
+              <label
+                className={`flex items-center space-x-2 ${form.watch("anonymous")
+                  ? "opacity-40 cursor-not-allowed filter grayscale"
+                  : "cursor-pointer hover:text-[#e17a2d]"}`}
+              >
+                <input
+                  type="radio"
+                  value="monthly"
+                  {...form.register("frequency")}
+                  checked={form.watch("frequency") === "monthly"}
+                  disabled={form.watch("anonymous")}
+                  className={`h-5 w-5 focus:ring-2 focus:ring-[#f6bb3f] ${form.watch("anonymous") ? "bg-gray-200" : "text-[#99b169]"}`}
+                />
+                <span className={`text-sm font-medium ${form.watch("anonymous") ? "text-gray-400" : "text-gray-800"}`}>Mensual</span>
+              </label>
+
+              <label className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="radio"
+                  value="once"
+                  {...form.register("frequency")}
+                  checked={form.watch("frequency") === "once" || form.watch("anonymous")}
+                  className="h-5 w-5 text-[#99b169] focus:ring-2 focus:ring-[#f6bb3f]"
+                />
+                <span className="text-sm font-medium text-gray-800">Única vez</span>
+              </label>
+            </div>
           </div>
+        )}
 
+        {/* Opción de donación anónima */}
+        <div className="space-y-3">
           <div className="flex items-start space-x-3 mt-4">
             <Checkbox
               id="anonymous"
-              {...form.register("anonymous")}
+              checked={isAnonymous}
+              onCheckedChange={(checked) => {
+                handleAnonymousChange({ target: { checked: checked === true } } as React.ChangeEvent<HTMLInputElement>);
+              }}
               className="h-5 w-5 border-gray-400 text-[#f6bb3f]"
             />
             <label
@@ -205,9 +241,10 @@ const DonationForm = () => {
         </div>
 
 
-        {/* Datos personales */}
-        <div className="space-y-4">
-          <h3 className="text-xl font-semibold">DATOS PERSONALES</h3>
+        {/* Datos personales - Solo visible si no es anónima */}
+        {!isAnonymous && (
+          <div className="space-y-4">
+            <h3 className="text-xl font-semibold">DATOS PERSONALES</h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
@@ -268,7 +305,8 @@ const DonationForm = () => {
               )}
             />
           </div>
-        </div>
+          </div>
+        )}
 
 
         {/* Seguridad */}

@@ -35,7 +35,10 @@ export async function POST(request: Request) {
         const donorName = isAnonymous ? null : payment.metadata?.donor_name;
         const donorEmail = isAnonymous ? null : payment.metadata?.donor_email;
         const donorPhone = isAnonymous ? null : payment.metadata?.donor_phone;
-        const frequency = payment.metadata?.frequency || "once"; // Si no se especifica, asumimos donación única
+        
+        // Si la donación es anónima, siempre debe ser de única vez
+        // Si no, usamos el valor especificado o "once" por defecto
+        const frequency = isAnonymous ? "once" : (payment.metadata?.frequency || "once");
 
         const amount = payment.transaction_amount;
         if (typeof amount !== "number") {
