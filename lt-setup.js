@@ -7,6 +7,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { exec } from 'child_process';
+import https from 'https';
 
 // Obtener el directorio actual
 const __filename = fileURLToPath(import.meta.url);
@@ -34,6 +35,24 @@ function updateEnvFile(tunnelUrl) {
   }
 }
 
+// Función para obtener la contraseña del túnel
+function getTunnelPassword() {
+  return new Promise((resolve, reject) => {
+    https.get('https://loca.lt/mytunnelpassword', (res) => {
+      let data = '';
+      res.on('data', (chunk) => {
+        data += chunk;
+      });
+      res.on('end', () => {
+        resolve(data.trim());
+      });
+    }).on('error', (err) => {
+      console.error('Error al obtener la contraseña del túnel:', err.message);
+      reject(err);
+    });
+  });
+}
+
 // Función principal
 console.log('🚀 Configurando túnel con localtunnel para MercadoPago...\n');
 
@@ -50,7 +69,7 @@ const lt = exec('npx lt --port 3000 --subdomain tea-donaciones', (error, stdout,
 });
 
 // Capturar la salida de localtunnel para obtener la URL
-lt.stdout.on('data', (data) => {
+lt.stdout.on('data', async (data) => {
   const output = data.toString();
   console.log(output);
   
@@ -62,6 +81,16 @@ lt.stdout.on('data', (data) => {
     
     // Actualizar el archivo .env
     updateEnvFile(tunnelUrl);
+    
+    // Obtener y mostrar la contraseña del túnel
+    try {
+      const password = await getTunnelPassword();
+      console.log(`\n🔑 Contraseña del túnel: ${password}`);
+      console.log(`\n📝 Para acceder a tu túnel, usa esta contraseña cuando te la solicite.`);
+    } catch (error) {
+      console.log(`\n⚠️ No se pudo obtener la contraseña del túnel automáticamente. ${error}`);
+      console.log(`   Puedes obtenerla visitando https://loca.lt/mytunnelpassword en este equipo.`);
+    }
     
     // Instrucciones para configurar el webhook en MercadoPago
     console.log('\n📋 Instrucciones para configurar el webhook en MercadoPago:');

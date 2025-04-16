@@ -27,6 +27,7 @@ model Donation {
   userId     String?
   createdAt  DateTime @default(now())
   frequency  String
+  paymentId  String?  @unique // ID del pago de MercadoPago
   user       User?    @relation(fields: [userId], references: [id])
 }
 
