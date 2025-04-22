@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { MercadoPagoConfig, Payment } from "mercadopago";
 import { PrismaClient } from "@prisma/client";
+import { saveLog } from './debug';
 
 // Configuración de MercadoPago
 const mercadopago = new MercadoPagoConfig({ 
@@ -16,15 +17,19 @@ const prisma = new PrismaClient();
 // - process.env.MP_CLIENT_SECRET
 
 export async function POST(request: Request) {
-  console.log('🔔 Webhook recibido de MercadoPago');
+  console.log('🔔 WEBHOOK: Notificación recibida de MercadoPago');
   console.log('URL completa:', request.url);
   console.log('Método:', request.method);
   console.log('Headers:', JSON.stringify(Object.fromEntries(request.headers.entries()), null, 2));
   
+  // Guardar la URL de la solicitud para análisis
+  const url = new URL(request.url);
+  console.log('Query params:', JSON.stringify(Object.fromEntries(url.searchParams.entries()), null, 2));
+  
   try {
     // Obtenemos el cuerpo de la petición que incluye información sobre la notificación
     const body = await request.json();
-    console.log('📦 Datos recibidos del webhook:', JSON.stringify(body, null, 2));
+    saveLog('📦 Datos recibidos del webhook:', body);
 
     // Solo procesamos notificaciones de tipo 'payment'
     if (body.type !== "payment") {
@@ -32,18 +37,34 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: true, message: "Notification type not handled" });
     }
 
-    console.log(`🔍 Obteniendo información del pago ID: ${body.data.id}`);
+    console.log(`🔍 Recibida notificación para el pago ID: ${body.data.id}`);
     
-    // Obtenemos el pago
+    // Verificar si ya existe una donación con este ID de pago
     try {
-      console.log(`🔍 Intentando obtener información del pago ID: ${body.data.id}`);
-      const payment = await new Payment(mercadopago).get({ id: body.data.id });
-      console.log('💰 Información del pago obtenida con éxito');
-      console.log(`💲 Estado del pago: ${payment.status}`);
-      console.log(`📊 Metadatos: ${JSON.stringify(payment.metadata || {}, null, 2)}`);
+      const existingDonation = await prisma.donation.findUnique({
+        where: { paymentId: body.data.id }
+      });
       
-      // Imprimir toda la información del pago para depuración
-      console.log('Detalles completos del pago:', JSON.stringify(payment, null, 2));
+      if (existingDonation) {
+        console.log(`⚠️ Ya existe una donación con este ID de pago: ${existingDonation.id}`);
+        return NextResponse.json({ 
+          success: true, 
+          message: "Donación ya registrada",
+          donation: existingDonation
+        });
+      }
+      
+      console.log(`🔍 Intentando obtener información del pago ID: ${body.data.id}`);
+      
+      try {
+        // Intentamos obtener la información del pago de MercadoPago
+        const payment = await new Payment(mercadopago).get({ id: body.data.id });
+        console.log('💰 Información del pago obtenida con éxito');
+        console.log(`💲 Estado del pago: ${payment.status}`);
+        console.log(`📊 Metadatos:`, JSON.stringify(payment.metadata || {}, null, 2));
+        
+        // Guardar toda la información del pago para depuración
+        console.log('Detalles completos del pago:', JSON.stringify(payment, null, 2));
 
     // Procesamos el pago según su estado
     if (payment.status === "approved") {
@@ -203,21 +224,40 @@ export async function POST(request: Request) {
           }
           
           // Crear la donación en la base de datos
-          const donation = await prisma.donation.create({
-            data: {
-              amount,
-              anonymous: isAnonymous,
-              donorName: donorName,
-              donorEmail: donorEmail,
-              phone: donorPhone,
-              frequency: frequency,
-              userId,
-              paymentId: body.data.id, // Guardar el ID del pago
-              createdAt: new Date(payment.date_approved || Date.now())
-            }
+          saveLog('Intentando crear donación con los siguientes datos:', {
+            amount,
+            anonymous: isAnonymous,
+            donorName,
+            donorEmail,
+            phone: donorPhone,
+            frequency,
+            userId,
+            paymentId: body.data.id
           });
           
-          console.log(`✅ Donación guardada con éxito. ID: ${donation.id}`);
+          try {
+            const donation = await prisma.donation.create({
+              data: {
+                amount,
+                anonymous: isAnonymous,
+                donorName: donorName,
+                donorEmail: donorEmail,
+                phone: donorPhone,
+                frequency: frequency,
+                userId,
+                paymentId: body.data.id, // Guardar el ID del pago
+                createdAt: new Date(payment.date_approved || Date.now())
+              }
+            });
+            
+            saveLog(`✅ Donación guardada con éxito. ID: ${donation.id}`, donation);
+          } catch (createError) {
+            saveLog('❌ Error al crear la donación:', createError);
+            if (createError instanceof Error) {
+              saveLog('Stack trace:', createError.stack);
+            }
+            throw createError; // Re-lanzar para que se maneje en el catch principal
+          }
           
           // Si tenemos email, enviamos un correo de confirmación
           if (donorEmail) {

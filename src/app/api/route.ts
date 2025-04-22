@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { MercadoPagoConfig, Payment } from "mercadopago";
+import { saveLog } from './debug';
 
 // Inicializar Prisma Client para poder registrar donaciones directamente
 const prisma = new PrismaClient();
@@ -42,14 +43,32 @@ export async function POST(request: Request) {
     console.log('URL completa:', request.url);
     console.log('Método:', request.method);
     console.log('Headers:', JSON.stringify(Object.fromEntries(request.headers.entries()), null, 2));
+    console.log('Query params completos:', JSON.stringify(Object.fromEntries(searchParams.entries()), null, 2));
+    
+    // Intentar obtener el body de la petición si es necesario
+    let requestBody;
+    try {
+      const clonedRequest = request.clone();
+      requestBody = await clonedRequest.text();
+      
+      // Intentar parsear como JSON si es posible (solo para depuración si es necesario)
+      try {
+        JSON.parse(requestBody);
+      } catch {
+        // Silenciar error si no es un JSON válido
+      }
+    } catch {
+      // Silenciar error si no se puede obtener el body
+    }
     
     // Verificamos si es una notificación de MercadoPago
-    const id = searchParams.get('id');
-    const topic = searchParams.get('topic');
+    const id = searchParams.get('id') || searchParams.get('payment_id') || searchParams.get('collection_id');
+    const topic = searchParams.get('topic') || 'payment'; // Asumimos 'payment' si no viene el topic
     
-    console.log(`Parámetros: id=${id}, topic=${topic}`);
+    console.log(`Parámetros identificados: id=${id}, topic=${topic}`);
+    console.log('Query params completos:', JSON.stringify(Object.fromEntries(searchParams.entries()), null, 2));
     
-    if (id && topic === 'payment') {
+    if (id) { // Solo verificamos que haya un ID, no importa el topic
       console.log(`🔄 RAIZ: Procesando notificación de MercadoPago (ID: ${id})`);
       
       try {
@@ -71,28 +90,62 @@ export async function POST(request: Request) {
           const payment = await new Payment(mercadopago).get({ id });
           console.log('💰 RAIZ: Información del pago obtenida con éxito');
           console.log(`💲 RAIZ: Estado del pago: ${payment.status}`);
+          console.log('Detalles completos del pago:', JSON.stringify(payment, null, 2));
+          console.log('Metadatos:', JSON.stringify(payment.metadata || {}, null, 2));
           
           // Procesar el pago según su estado
           if (payment.status === "approved") {
             console.log('✅ RAIZ: Pago aprobado, guardando en base de datos...');
             
             try {
-              // Extraer datos del pagador
-              const payer = payment.payer as { 
-                first_name?: string; 
-                last_name?: string; 
-                email?: string;
-                identification?: { number?: string };
-                phone?: { number?: string };
-              };
-              
-              const donorName = payer.first_name && payer.last_name ? 
-                `${payer.first_name} ${payer.last_name}`.trim() : null;
-              const donorEmail = payer.email || null;
-              const donorPhone = payer.phone?.number || null;
-              const isAnonymous = false; // Por defecto, asumimos que no es anónimo
+              // Intentar obtener metadatos primero (preferencia)
+              let isAnonymous = false;
+              let donorName = null;
+              let donorEmail = null;
+              let donorPhone = null;
+              let frequency = "once";
               const amount = payment.transaction_amount as number;
-              const frequency = "once"; // Por defecto, donación única
+              
+              // Verificar si hay metadatos disponibles
+              if (payment.metadata) {
+                console.log('📊 RAIZ: Usando metadatos del pago:', JSON.stringify(payment.metadata, null, 2));
+                
+                const metadata = payment.metadata as {
+                  donor_name?: string;
+                  donor_email?: string;
+                  donor_phone?: string;
+                  donation_type?: string;
+                  anonymous?: boolean | string;
+                };
+                isAnonymous = metadata.anonymous === true || metadata.anonymous === 'true';
+                donorName = metadata.donor_name || null;
+                donorEmail = metadata.donor_email || null;
+                donorPhone = metadata.donor_phone || null;
+                frequency = metadata.donation_type || "once";
+              } else {
+                // Si no hay metadatos, intentamos obtener datos del pagador
+                console.log('⚠️ RAIZ: No hay metadatos, usando datos del pagador');
+                
+                if (payment.payer) {
+                  const payer = payment.payer as { 
+                    first_name?: string; 
+                    last_name?: string; 
+                    email?: string;
+                    identification?: { number?: string };
+                    phone?: { number?: string };
+                  };
+                  
+                  const firstName = payer.first_name || '';
+                  const lastName = payer.last_name || '';
+                  
+                  if (firstName || lastName) {
+                    donorName = `${firstName} ${lastName}`.trim();
+                  }
+                  
+                  donorEmail = payer.email || null;
+                  donorPhone = payer.phone?.number || null;
+                }
+              }
               
               console.log(`👤 RAIZ: Datos del donante: ${donorName}, ${donorEmail}, ${donorPhone}`);
               console.log(`💵 RAIZ: Monto: ${amount}, Frecuencia: ${frequency}`);
@@ -127,21 +180,40 @@ export async function POST(request: Request) {
               }
               
               // Registrar la donación
-              const donation = await prisma.donation.create({
-                data: {
-                  amount,
-                  anonymous: isAnonymous,
-                  donorName,
-                  donorEmail,
-                  phone: donorPhone,
-                  frequency,
-                  userId,
-                  paymentId: id,
-                  createdAt: new Date(payment.date_approved || Date.now())
-                }
+              saveLog('RAIZ: Intentando crear donación con los siguientes datos:', {
+                amount,
+                anonymous: isAnonymous,
+                donorName,
+                donorEmail,
+                phone: donorPhone,
+                frequency,
+                userId,
+                paymentId: id
               });
               
-              console.log(`✅ RAIZ: Donación guardada con éxito. ID: ${donation.id}`);
+              try {
+                const donation = await prisma.donation.create({
+                  data: {
+                    amount,
+                    anonymous: isAnonymous,
+                    donorName,
+                    donorEmail,
+                    phone: donorPhone,
+                    frequency,
+                    userId,
+                    paymentId: id,
+                    createdAt: new Date(payment.date_approved || Date.now())
+                  }
+                });
+                
+                saveLog(`✅ RAIZ: Donación guardada con éxito. ID: ${donation.id}`, donation);
+              } catch (createError) {
+                saveLog('❌ RAIZ: Error al crear la donación:', createError);
+                if (createError instanceof Error) {
+                  saveLog('Stack trace:', createError.stack);
+                }
+                throw createError; // Re-lanzar para que se maneje en el catch principal
+              }
               
             } catch (dbError) {
               console.error('❌ RAIZ: Error guardando la donación:', dbError);

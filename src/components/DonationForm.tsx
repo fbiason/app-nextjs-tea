@@ -12,19 +12,32 @@ import { ShieldCheck } from 'lucide-react';
 
 
 
-// Esquema de validación con Zod
-const donationSchema = z.object({
-  amount: z.string().min(1, "Selecciona o ingresa un monto"),
-  frequency: z.enum(["monthly", "once"]),
-  anonymous: z.boolean().optional(),
-  firstName: z.string().min(2, "Nombre demasiado corto"),
-  lastName: z.string().min(2, "Apellido demasiado corto"),
-  email: z.string().email("Email inválido"),
-  phone: z.string().min(6, "Número de teléfono inválido"),
-});
+// Esquema condicional que valida según si es anónimo o no
+const conditionalDonationSchema = z.discriminatedUnion('anonymous', [
+  // Si es anónimo, solo validamos monto y frecuencia
+  z.object({
+    anonymous: z.literal(true),
+    amount: z.string().min(1, "Selecciona o ingresa un monto"),
+    frequency: z.enum(["monthly", "once"]),
+    firstName: z.string().optional(),
+    lastName: z.string().optional(),
+    email: z.string().optional(),
+    phone: z.string().optional(),
+  }),
+  // Si no es anónimo, validamos todos los campos excepto teléfono que es opcional
+  z.object({
+    anonymous: z.literal(false),
+    amount: z.string().min(1, "Selecciona o ingresa un monto"),
+    frequency: z.enum(["monthly", "once"]),
+    firstName: z.string().min(2, "Nombre demasiado corto"),
+    lastName: z.string().min(2, "Apellido demasiado corto"),
+    email: z.string().email("Email inválido"),
+    phone: z.string().min(6, "Número de teléfono inválido").optional(),
+  }),
+]);
 
-// Definimos el tipo basado en el esquema Zod
-type DonationFormValues = z.infer<typeof donationSchema>;
+// Definimos el tipo basado en el esquema Zod condicional
+type DonationFormValues = z.infer<typeof conditionalDonationSchema>;
 
 const DonationForm = () => {
   const [loading, setLoading] = useState(false);
@@ -33,10 +46,10 @@ const DonationForm = () => {
 
   // Configuramos react-hook-form con validación Zod
   const form = useForm<DonationFormValues>({
-    resolver: zodResolver(donationSchema),
+    resolver: zodResolver(conditionalDonationSchema),
     defaultValues: {
       amount: "4500",
-      frequency: "monthly",
+      frequency: "once",
       anonymous: false,
       firstName: "",
       lastName: "",
@@ -47,17 +60,37 @@ const DonationForm = () => {
 
   // Estado local para controlar la donación anónima
   const [isAnonymous, setIsAnonymous] = useState(false);
+  // Estado para controlar si la donación es mensual
+  const [isMonthly, setIsMonthly] = useState(false); // Por defecto es única vez
   
   // Manejador para el cambio en el checkbox de donación anónima
   const handleAnonymousChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const checked = e.target.checked;
-    setIsAnonymous(checked);
-    form.setValue("anonymous", checked);
     
     // Si es anónimo, forzamos a que sea donación única
     if (checked) {
       form.setValue("frequency", "once");
+      setIsMonthly(false);
     }
+    
+    setIsAnonymous(checked);
+    form.setValue("anonymous", checked);
+    
+    // Actualizamos la validación del formulario
+    form.trigger();
+  };
+  
+  // Manejador para el cambio en la frecuencia de donación
+  const handleFrequencyChange = (frequency: "monthly" | "once") => {
+    // Si cambia a mensual, no puede ser anónimo
+    if (frequency === "monthly" && isAnonymous) {
+      setIsAnonymous(false);
+      form.setValue("anonymous", false);
+    }
+    
+    setIsMonthly(frequency === "monthly");
+    form.setValue("frequency", frequency);
+    form.trigger();
   };
 
 
@@ -188,33 +221,31 @@ const DonationForm = () => {
               </div>
             )}
 
-            <div className="flex items-center gap-6">
-              <label
-                className={`flex items-center space-x-2 ${form.watch("anonymous")
-                  ? "opacity-40 cursor-not-allowed filter grayscale"
-                  : "cursor-pointer hover:text-[#e17a2d]"}`}
-              >
-                <input
-                  type="radio"
-                  value="monthly"
-                  {...form.register("frequency")}
-                  checked={form.watch("frequency") === "monthly"}
-                  disabled={form.watch("anonymous")}
-                  className={`h-5 w-5 focus:ring-2 focus:ring-[#f6bb3f] ${form.watch("anonymous") ? "bg-gray-200" : "text-[#99b169]"}`}
-                />
-                <span className={`text-sm font-medium ${form.watch("anonymous") ? "text-gray-400" : "text-gray-800"}`}>Mensual</span>
-              </label>
-
-              <label className="flex items-center space-x-2 cursor-pointer">
-                <input
-                  type="radio"
-                  value="once"
-                  {...form.register("frequency")}
-                  checked={form.watch("frequency") === "once" || form.watch("anonymous")}
-                  className="h-5 w-5 text-[#99b169] focus:ring-2 focus:ring-[#f6bb3f]"
-                />
-                <span className="text-sm font-medium text-gray-800">Única vez</span>
-              </label>
+            <div className="flex justify-between space-x-4 mt-4">
+              <div className="flex-0">
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="frequency"
+                    checked={form.watch("frequency") === "monthly"}
+                    onChange={() => handleFrequencyChange("monthly")}
+                    className="h-4 w-4 text-[#f6bb3f] focus:ring-[#f6bb3f]"
+                  />
+                  <span className="text-sm font-medium text-gray-800">Mensual</span>
+                </label>
+              </div>
+              <div className="flex-1">
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="frequency"
+                    checked={form.watch("frequency") === "once"}
+                    onChange={() => handleFrequencyChange("once")}
+                    className="h-4 w-4 text-[#f6bb3f] focus:ring-[#f6bb3f]"
+                  />
+                  <span className="text-sm font-medium text-gray-800">Única vez</span>
+                </label>
+              </div>
             </div>
           </div>
         )}
@@ -225,17 +256,21 @@ const DonationForm = () => {
             <Checkbox
               id="anonymous"
               checked={isAnonymous}
+              disabled={isMonthly} /* Deshabilitamos si es mensual */
               onCheckedChange={(checked) => {
                 handleAnonymousChange({ target: { checked: checked === true } } as React.ChangeEvent<HTMLInputElement>);
               }}
-              className="h-5 w-5 border-gray-400 text-[#f6bb3f]"
+              className={`h-5 w-5 border-gray-400 ${isMonthly ? 'opacity-50 cursor-not-allowed' : 'text-[#f6bb3f]'}`}
             />
             <label
               htmlFor="anonymous"
-              className="flex items-center space-x-2 text-base font-medium text-gray-700 leading-none"
+              className={`flex items-center space-x-2 text-base font-medium leading-none ${isMonthly ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 cursor-pointer'}`}
             >
-              <ShieldCheck size={20} className="text-[#f6bb3f]" />
+              <ShieldCheck size={20} className={isMonthly ? 'text-gray-400' : 'text-[#f6bb3f]'} />
               <span>Donación anónima</span>
+              {isMonthly && (
+                <span className="text-xs text-gray-500 ml-2">(No disponible para donaciones mensuales)</span>
+              )}
             </label>
           </div>
         </div>
@@ -296,7 +331,7 @@ const DonationForm = () => {
               name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Teléfono</FormLabel>
+                  <FormLabel>Teléfono (opcional)</FormLabel>
                   <FormControl>
                     <Input placeholder="Tu número de teléfono" {...field} />
                   </FormControl>

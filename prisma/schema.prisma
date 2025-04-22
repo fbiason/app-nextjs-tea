@@ -3,9 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -27,7 +26,7 @@ model Donation {
   userId     String?
   createdAt  DateTime @default(now())
   frequency  String
-  paymentId  String?  @unique // ID del pago de MercadoPago
+  paymentId  String?  @unique
   user       User?    @relation(fields: [userId], references: [id])
 }
 

@@ -2,16 +2,29 @@ import { NextResponse } from "next/server";
 import { MercadoPagoConfig, Preference } from "mercadopago";
 import { z } from "zod";
 
-// Esquema de validación para la donación
-const donationSchema = z.object({
-  amount: z.string().min(1, "Selecciona o ingresa un monto"),
-  frequency: z.enum(["monthly", "once"]),
-  anonymous: z.boolean().optional(),
-  firstName: z.string().min(2, "Nombre demasiado corto"),
-  lastName: z.string().min(2, "Apellido demasiado corto"),
-  email: z.string().email("Email inválido"),
-  phone: z.string().min(6, "Número de teléfono inválido"),
-});
+// Esquema condicional que valida según si es anónimo o no
+const donationSchema = z.discriminatedUnion('anonymous', [
+  // Si es anónimo, solo validamos monto y frecuencia
+  z.object({
+    anonymous: z.literal(true),
+    amount: z.string().min(1, "Selecciona o ingresa un monto"),
+    frequency: z.enum(["monthly", "once"]),
+    firstName: z.string().optional(),
+    lastName: z.string().optional(),
+    email: z.string().optional(),
+    phone: z.string().optional(),
+  }),
+  // Si no es anónimo, validamos todos los campos excepto teléfono que es opcional
+  z.object({
+    anonymous: z.literal(false),
+    amount: z.string().min(1, "Selecciona o ingresa un monto"),
+    frequency: z.enum(["monthly", "once"]),
+    firstName: z.string().min(2, "Nombre demasiado corto"),
+    lastName: z.string().min(2, "Apellido demasiado corto"),
+    email: z.string().email("Email inválido"),
+    phone: z.string().min(6, "Número de teléfono inválido").optional(),
+  }),
+]);
 
 // Configuración directa de MercadoPago usando el token de acceso de las variables de entorno
 const mercadopago = new MercadoPagoConfig({
@@ -63,20 +76,27 @@ export async function POST(request: Request) {
         ],
         // Agregamos la comisión de la plataforma si está configurada
         marketplace_fee: platformCommission,
-        payer: {
-          name: validatedData.firstName,
-          surname: validatedData.lastName,
-          email: validatedData.email,
-          phone: {
-            number: validatedData.phone
+        // Solo incluimos datos del pagador si no es anónimo
+        ...(!validatedData.anonymous ? {
+          payer: {
+            name: validatedData.firstName,
+            surname: validatedData.lastName,
+            email: validatedData.email,
+            ...(validatedData.phone ? {
+              phone: {
+                number: validatedData.phone
+              }
+            } : {})
           }
-        },
+        } : {}),
         metadata: {
-          donor_name: `${validatedData.firstName} ${validatedData.lastName}`,
-          donor_email: validatedData.email,
-          donor_phone: validatedData.phone,
+          ...(!validatedData.anonymous ? {
+            donor_name: `${validatedData.firstName} ${validatedData.lastName}`,
+            donor_email: validatedData.email,
+            donor_phone: validatedData.phone,
+          } : {}),
           donation_type: validatedData.frequency,
-          anonymous: validatedData.anonymous ?? false,
+          anonymous: validatedData.anonymous,
         },
         back_urls: {
           success: `${process.env.APP_URL}/donaciones/gracias`,

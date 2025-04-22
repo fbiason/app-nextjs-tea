@@ -1,0 +1,32 @@
+[2025-04-22T14:47:36.079Z] 📦 Datos recibidos del webhook:
+DATA: {
+  "action": "payment.updated",
+  "api_version": "v1",
+  "data": {
+    "id": "123456"
+  },
+  "date_created": "2021-11-01T02:02:02Z",
+  "id": "123456",
+  "live_mode": false,
+  "type": "payment",
+  "user_id": 2346613060
+}
+-----------------------------------
+[2025-04-22T14:47:36.089Z] 🔍 Intentando obtener información del pago ID: 123456
+-----------------------------------
+[2025-04-22T14:48:04.585Z] 📦 Datos recibidos del webhook:
+DATA: {
+  "action": "payment.updated",
+  "api_version": "v1",
+  "data": {
+    "id": "123456"
+  },
+  "date_created": "2021-11-01T02:02:02Z",
+  "id": "123456",
+  "live_mode": false,
+  "type": "payment",
+  "user_id": 2346613060
+}
+-----------------------------------
+[2025-04-22T14:48:04.606Z] 🔍 Intentando obtener información del pago ID: 123456
+-----------------------------------
