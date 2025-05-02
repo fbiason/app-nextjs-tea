@@ -47,7 +47,7 @@ export default function GraciasPage() {
         
         {amount && (
           <p className="text-lg text-gray-600 mb-8">
-            Tu donación de ${parseInt(amount).toLocaleString('es-AR')} ayudará a continuar 
+            Tu donación de ${parseInt(amount as string).toLocaleString('es-AR')} ayudará a continuar 
             con nuestra misión de apoyar a personas con TEA y sus familias.
           </p>
         )}
