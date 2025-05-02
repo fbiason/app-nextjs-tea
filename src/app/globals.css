@@ -130,3 +130,7 @@
 body.menu-open {
   overflow: hidden;
 }
+
+button{
+  @apply cursor-pointer;
+}
