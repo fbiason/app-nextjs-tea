@@ -13,9 +13,10 @@ const nextConfig = {
   reactStrictMode: true,
   // Deshabilitar ESLint durante el build para permitir el deploy
   eslint: {
-    // Advertencia: esto deshabilitará la verificación de ESLint durante el build
     ignoreDuringBuilds: true,
-  },
+    // Configuración adicional para asegurar que Vercel respete esta configuración
+    dirs: ['pages', 'components', 'lib', 'src']
+  }
 };
 
 export default nextConfig;

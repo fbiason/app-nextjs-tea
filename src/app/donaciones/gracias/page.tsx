@@ -51,7 +51,6 @@ export default function GraciasPage() {
     }
   }, []);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     // Obtener los parámetros de la URL
     const searchParams = new URLSearchParams(window.location.search);
