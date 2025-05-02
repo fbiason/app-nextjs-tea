@@ -1,5 +1,5 @@
 'use client';
-// Soy un comentario
+// Era un comentario
 import { useEffect, useState } from "react";
 
 const MOBILE_BREAKPOINT = 768
