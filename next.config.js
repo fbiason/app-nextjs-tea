@@ -1,7 +1,6 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  /* config options here */
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  allowedDevOrigins: ['tea-donaciones.loca.lt'],
   images: {
     domains: ['localhost'],
     remotePatterns: [
@@ -11,6 +10,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  reactStrictMode: true,
 };
 
 export default nextConfig;

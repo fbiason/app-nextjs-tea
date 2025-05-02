@@ -9,9 +9,25 @@ export default function GraciasPage() {
   const [amount, setAmount] = useState<string>('');
 
   useEffect(() => {
+    // Obtener los parámetros de la URL
+    const searchParams = new URLSearchParams(window.location.search);
+    const paymentId = searchParams.get('payment_id') || searchParams.get('collection_id');
+    const status = searchParams.get('status') || searchParams.get('collection_status');
+    
     // Intentar recuperar información de la donación desde localStorage
     const donationData = localStorage.getItem('lastDonation');
-    if (donationData) {
+    if (donationData && paymentId && status === 'approved') {
+      try {
+        const parsedData = JSON.parse(donationData);
+        setDonorName(parsedData.firstName || '');
+        setAmount(parsedData.amount || '');
+        
+        // Guardar la donación en la base de datos
+        saveDonationToDatabase(parsedData, paymentId);
+      } catch (e) {
+        console.error('Error parsing donation data:', e);
+      }
+    } else if (donationData) {
       try {
         const parsedData = JSON.parse(donationData);
         setDonorName(parsedData.firstName || '');
@@ -21,6 +37,49 @@ export default function GraciasPage() {
       }
     }
   }, []);
+  
+  // Definir el tipo de datos de la donación
+  interface DonationData {
+    amount: string;
+    frequency: string;
+    anonymous: boolean;
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    phone?: string;
+    [key: string]: any; // Para cualquier otro campo que pueda venir
+  }
+  
+  // Función para guardar la donación en la base de datos
+  const saveDonationToDatabase = async (donationData: DonationData, paymentId: string) => {
+    try {
+      // Preparar los datos para enviar al endpoint
+      const dataToSave = {
+        ...donationData,
+        paymentId,
+        name: `${donationData.firstName || ''} ${donationData.lastName || ''}`.trim(),
+        email: donationData.email,
+        phone: donationData.phone
+      };
+      
+      // Enviar los datos al endpoint
+      const response = await fetch('/api/donations/save', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(dataToSave)
+      });
+      
+      const result = await response.json();
+      
+      if (!result.success) {
+        console.error('Error al guardar la donación:', result.error);
+      }
+    } catch (error) {
+      console.error('Error al guardar la donación:', error);
+    }
+  };
 
   return (
     <div className="container mx-auto px-4 py-12 max-w-4xl">
