@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Facebook, Instagram, MessageCircle, Mail, PhoneCall, MapPin, X } from 'lucide-react';
+import { Facebook, Instagram, MessageCircle, X } from 'lucide-react';
 import Link from 'next/link';
 
 const Footer = () => {
