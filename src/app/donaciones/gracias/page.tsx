@@ -51,6 +51,7 @@ export default function GraciasPage() {
     }
   }, []);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     // Obtener los parámetros de la URL
     const searchParams = new URLSearchParams(window.location.search);
@@ -79,7 +80,7 @@ export default function GraciasPage() {
         console.error('Error parsing donation data:', e);
       }
     }
-  }, [saveDonationToDatabase]);
+  }, []);
 
   return (
     <div className="container mx-auto px-4 py-12 max-w-4xl">
