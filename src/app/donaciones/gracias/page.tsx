@@ -1,12 +1,55 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { CheckCircle2 } from 'lucide-react';
 
 export default function GraciasPage() {
   const [donorName, setDonorName] = useState<string>('');
   const [amount, setAmount] = useState<string>('');
+
+  // Definir el tipo de datos de la donación
+  interface DonationData {
+    amount: string;
+    frequency: string;
+    anonymous: boolean;
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    phone?: string;
+    [key: string]: string | number | boolean | undefined; // Para cualquier otro campo que pueda venir
+  }
+  
+  // Función para guardar la donación en la base de datos
+  const saveDonationToDatabase = useCallback(async (donationData: DonationData, paymentId: string) => {
+    try {
+      // Preparar los datos para enviar al endpoint
+      const dataToSave = {
+        ...donationData,
+        paymentId,
+        name: `${donationData.firstName || ''} ${donationData.lastName || ''}`.trim(),
+        email: donationData.email,
+        phone: donationData.phone
+      };
+      
+      // Enviar los datos al endpoint
+      const response = await fetch('/api/donations/save', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(dataToSave)
+      });
+      
+      const result = await response.json();
+      
+      if (!result.success) {
+        console.error('Error al guardar la donación:', result.error);
+      }
+    } catch (error) {
+      console.error('Error al guardar la donación:', error);
+    }
+  }, []);
 
   useEffect(() => {
     // Obtener los parámetros de la URL
@@ -36,50 +79,7 @@ export default function GraciasPage() {
         console.error('Error parsing donation data:', e);
       }
     }
-  }, []);
-  
-  // Definir el tipo de datos de la donación
-  interface DonationData {
-    amount: string;
-    frequency: string;
-    anonymous: boolean;
-    firstName?: string;
-    lastName?: string;
-    email?: string;
-    phone?: string;
-    [key: string]: any; // Para cualquier otro campo que pueda venir
-  }
-  
-  // Función para guardar la donación en la base de datos
-  const saveDonationToDatabase = async (donationData: DonationData, paymentId: string) => {
-    try {
-      // Preparar los datos para enviar al endpoint
-      const dataToSave = {
-        ...donationData,
-        paymentId,
-        name: `${donationData.firstName || ''} ${donationData.lastName || ''}`.trim(),
-        email: donationData.email,
-        phone: donationData.phone
-      };
-      
-      // Enviar los datos al endpoint
-      const response = await fetch('/api/donations/save', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(dataToSave)
-      });
-      
-      const result = await response.json();
-      
-      if (!result.success) {
-        console.error('Error al guardar la donación:', result.error);
-      }
-    } catch (error) {
-      console.error('Error al guardar la donación:', error);
-    }
-  };
+  }, [saveDonationToDatabase]);
 
   return (
     <div className="container mx-auto px-4 py-12 max-w-4xl">
