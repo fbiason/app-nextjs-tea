@@ -41,14 +41,15 @@ type DonationFormValues = z.infer<typeof conditionalDonationSchema>;
 
 const DonationForm = () => {
   const [loading, setLoading] = useState(false);
-  const [selectedAmount, setSelectedAmount] = useState<string | null>("4500");
+  const [selectedAmount, setSelectedAmount] = useState<string | null>("5000");
   const [customAmount, setCustomAmount] = useState("");
+  const [customAmountError, setCustomAmountError] = useState<string | null>(null);
 
   // Configuramos react-hook-form con validación Zod
   const form = useForm<DonationFormValues>({
     resolver: zodResolver(conditionalDonationSchema),
     defaultValues: {
-      amount: "4500",
+      amount: "5000",
       frequency: "once",
       anonymous: false,
       firstName: "",
@@ -96,6 +97,12 @@ const DonationForm = () => {
 
   // Función que se ejecuta con un formulario válido
   const onSubmit = async (data: DonationFormValues) => {
+    // Verificar que el monto no sea inferior a $5.000
+    if (parseInt(data.amount) < 5000) {
+      setCustomAmountError("El monto mínimo de donación es de $5.000");
+      return;
+    }
+    
     setLoading(true);
 
     try {
@@ -140,15 +147,22 @@ const DonationForm = () => {
       setCustomAmount(value);
       setSelectedAmount(null);
       form.setValue("amount", value);
+      
+      // Validar que el monto no sea inferior a $5.000 si se ha ingresado algo
+      if (value && parseInt(value) < 5000) {
+        setCustomAmountError("El monto mínimo de donación es de $5.000");
+      } else {
+        setCustomAmountError(null);
+      }
     }
   };
 
   const amountOptions = [
-    { value: "4500", label: "$ 4.500" },
-    { value: "18000", label: "$ 18.000" },
-    { value: "27000", label: "$ 27.000" },
-    { value: "45000", label: "$ 45.000" },
-    { value: "24300", label: "$ 24.300" },
+    { value: "5000", label: "$ 5.000" },
+    { value: "10000", label: "$ 10.000" },
+    { value: "20000", label: "$ 20.000" },
+    { value: "30000", label: "$ 30.000" },
+    { value: "50000", label: "$ 50.000" },
   ];
 
   return (
@@ -205,6 +219,9 @@ const DonationForm = () => {
           {/* Validación de errores */}
           {form.formState.errors.amount && (
             <p className="text-red-500 text-sm">{form.formState.errors.amount.message}</p>
+          )}
+          {customAmountError && (
+            <p className="text-red-500 text-sm">{customAmountError}</p>
           )}
         </div>
         {/* Frecuencia de donación - Solo visible si no es anónima */}
@@ -355,7 +372,7 @@ const DonationForm = () => {
         {/* Botón de envío */}
         <Button
           type="submit"
-          className="w-full bg-tea-blue hover:bg-blue-700"
+          className="w-full bg-gradient-to-r from-[#f6bb3f] via-[#e17a2d] to-[#99b169] hover:from-[#e17a2d] hover:to-[#f6bb3f] text-white font-bold py-3 shadow-md hover:shadow-lg transition-all"
           disabled={loading}
         >
           {loading ? "Procesando..." : "Donar a Fundación TEA Santa Cruz"}

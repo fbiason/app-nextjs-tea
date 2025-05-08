@@ -4,9 +4,32 @@ import DonationForm from '@/components/DonationForm';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { CheckCircle2, CreditCard, Heart, Landmark, MessageCircle, Shield } from 'lucide-react';
+import { CheckCircle2, CreditCard, Heart, Landmark, MessageCircle, Shield, ArrowUp } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 const DonationPage = () => {
+
+    const [showBackToTop, setShowBackToTop] = useState(false);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            if (window.scrollY > 200) {
+                setShowBackToTop(true);
+            } else {
+                setShowBackToTop(false);
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll);
+
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }, []);
+
+    const handleBackToTop = () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
 
     return (
         <div className="min-h-screen flex flex-col">
@@ -24,7 +47,12 @@ const DonationPage = () => {
                             Con tu donación contribuyes a mejorar la calidad de vida de personas con TEA y sus familias.
                         </p>
 
-                        <Button className="bg-white text-[#165a91] hover:bg-gray-100 px-8 py-4 text-lg font-bold rounded-lg shadow-md hover:shadow-lg transition-all">
+                        <Button 
+                            className="bg-white text-[#165a91] hover:bg-gray-100 px-8 py-4 text-lg font-bold rounded-lg shadow-md hover:shadow-lg transition-all"
+                            onClick={() => {
+                                document.getElementById('formulario-donacion')?.scrollIntoView({ behavior: 'smooth' });
+                            }}
+                        >
                             <Heart className="mr-2" size={24} />
                             Donar Ahora
                         </Button>
@@ -34,99 +62,111 @@ const DonationPage = () => {
 {/* Nuestras Acciones */}
 <section className="py-12 bg-white">
   <div className="container mx-auto px-4">
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-6xl mx-auto">
       <h2 className="text-2xl font-bold text-tea-blue mb-6 text-center">Nuestras Acciones</h2>
-      <p className="text-lg text-gray-700 mb-6">
+      <p className="text-lg text-gray-700 mb-8 text-center max-w-4xl mx-auto">
         Desde Fundación TEA Santa Cruz desarrollamos acciones que promueven la inclusión, el acceso a derechos y el fortalecimiento de redes de apoyo para personas con Trastorno del Espectro Autista (TEA) y sus familias.
       </p>
 
-      <div className="mb-6">
-        <h3 className="text-xl font-semibold mb-2">
-          <span style={{ color: '#f6bb3f' }}>Ma</span>
-          <span style={{ color: '#e17a2d' }}>TEA</span>
-          <span style={{ color: '#99b169' }}>mos</span>
-        </h3>
-        <p className="text-gray-700">Espacio de encuentro para familiares de personas con condición del espectro autista, donde se comparten sentires y experiencias con total libertad, promoviendo el cuidado de la salud mental y el acompañamiento entre personas que transitan el mismo camino.</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        {/* MaTEAmos */}
+        <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-3 border border-gray-100">
+          <h3 className="text-lg font-semibold mb-2">
+            <span style={{ color: '#f6bb3f' }}>Ma</span>
+            <span style={{ color: '#e17a2d' }}>TEA</span>
+            <span style={{ color: '#99b169' }}>mos</span>
+          </h3>
+          <p className="text-gray-700 text-xs">Espacio de encuentro para familiares de personas con condición del espectro autista, donde se comparten sentires y experiencias.</p>
+        </div>
+
+        {/* PileTEAmos */}
+        <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-3 border border-gray-100">
+          <h3 className="text-lg font-semibold mb-2">
+            <span style={{ color: '#f6bb3f' }}>Pile</span>
+            <span style={{ color: '#e17a2d' }}>TEA</span>
+            <span style={{ color: '#99b169' }}>mos</span>
+          </h3>
+          <p className="text-gray-700 text-xs">Promoción de la actividad acuática y sus beneficios a través de la articulación con el Club Hispano Americano.</p>
+        </div>
+
+        {/* Orientación Legal */}
+        <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-3 border border-gray-100">
+          <h3 className="text-lg font-semibold mb-2">
+            <span style={{ color: '#f6bb3f' }}>Orientación</span>{' '}
+            <span style={{ color: '#e17a2d' }}>Legal</span>
+          </h3>
+          <p className="text-gray-700 text-xs">Orientación legal gratuita promoviendo el acceso a información que permita la defensa de los derechos de personas con TEA.</p>
+        </div>
+
+        {/* TEAcompaña */}
+        <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-3 border border-gray-100">
+          <h3 className="text-lg font-semibold mb-2">
+            <span style={{ color: '#e17a2d' }}>TEA</span>
+            <span style={{ color: '#99b169' }}>compaña</span>
+          </h3>
+          <p className="text-gray-700 text-xs">Despliegue territorial para conectar localidades de Santa Cruz con la Fundación, promoviendo el trabajo articulado.</p>
+        </div>
+
+        {/* Congresos Internacionales */}
+        <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-3 border border-gray-100">
+          <h3 className="text-lg font-semibold mb-2">
+            <span style={{ color: '#f6bb3f' }}>Congresos</span>{' '}
+            <span style={{ color: '#e17a2d' }}>Internacionales</span>
+          </h3>
+          <p className="text-gray-700 text-xs">Eventos internacionales de formación para promover la actualización del conocimiento y conexión con profesionales.</p>
+        </div>
+
+        {/* ITEA */}
+        <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-3 border border-gray-100">
+          <h3 className="text-lg font-semibold mb-2">
+            <span style={{ color: '#f6bb3f' }}>I</span>
+            <span style={{ color: '#e17a2d' }}>TE</span>
+            <span style={{ color: '#99b169' }}>A</span>
+          </h3>
+          <p className="text-gray-700 text-xs">Instituto para Trastornos del Espectro Autista, escuela especial que garantiza el acceso a la educación de niños con TEA.</p>
+        </div>
+
+        {/* Familias para Familias */}
+        <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-3 border border-gray-100">
+          <h3 className="text-lg font-semibold mb-2">
+            <span style={{ color: '#f6bb3f' }}>Familias</span>{' '}
+            <span style={{ color: '#e17a2d' }}>para</span>{' '}
+            <span style={{ color: '#99b169' }}>Familias</span>
+          </h3>
+          <p className="text-gray-700 text-xs">Espacio de encuentros y talleres dictados por personas con condición del espectro autista o sus familiares.</p>
+        </div>
+
+        {/* Hacia el empoderamiento */}
+        <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-3 border border-gray-100">
+          <h3 className="text-lg font-semibold mb-2">
+            <span style={{ color: '#f6bb3f' }}>Hacia el</span>{' '}
+            <span style={{ color: '#e17a2d' }}>empoderamiento</span>{' '}
+            <span style={{ color: '#99b169' }}>de las Familias</span>
+          </h3>
+          <p className="text-gray-700 text-xs">Talleres teóricos prácticos para docentes, familias y cuidadores de niños con condición del espectro autista.</p>
+        </div>
+
+        {/* Talleres recreativos */}
+        <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-3 border border-gray-100">
+          <h3 className="text-lg font-semibold mb-2">
+            <span style={{ color: '#f6bb3f' }}>Talleres</span>{' '}
+            <span style={{ color: '#e17a2d' }}>recreativos</span>
+          </h3>
+          <p className="text-gray-700 text-xs">Talleres de relajación, baile y arte para niños y jóvenes, promoviendo la socialización e integración.</p>
+        </div>
+
+        {/* Colonia de vacaciones */}
+        <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-3 border border-gray-100">
+          <h3 className="text-lg font-semibold mb-2">
+            <span style={{ color: '#f6bb3f' }}>Colonia</span>{' '}
+            <span style={{ color: '#e17a2d' }}>de</span>{' '}
+            <span style={{ color: '#99b169' }}>vacaciones</span>
+          </h3>
+          <p className="text-gray-700 text-xs">Espacio recreativo para el disfrute del tiempo libre en periodo vacacional, destinado a niños y jóvenes con y sin discapacidad.</p>
+        </div>
       </div>
 
-      <div className="mb-6">
-        <h3 className="text-xl font-semibold mb-2">
-          <span style={{ color: '#f6bb3f' }}>Pile</span>
-          <span style={{ color: '#e17a2d' }}>TEA</span>
-          <span style={{ color: '#99b169' }}>mos</span>
-        </h3>
-        <p className="text-gray-700">Promoción de la actividad acuática y sus beneficios a través de la articulación con el Club Hispano Americano y la Municipalidad de Río Gallegos.</p>
-      </div>
-
-      <div className="mb-6">
-        <h3 className="text-xl font-semibold mb-2">
-          <span style={{ color: '#f6bb3f' }}>Orientación</span>{' '}
-          <span style={{ color: '#e17a2d' }}>Legal</span>
-        </h3>
-        <p className="text-gray-700">Orientación legal gratuita promoviendo el acceso a información que permita la defensa y ejercicio de los derechos de las personas con TEA y sus familias.</p>
-      </div>
-
-      <div className="mb-6">
-        <h3 className="text-xl font-semibold mb-2">
-          <span style={{ color: '#e17a2d' }}>TEA</span>
-          <span style={{ color: '#99b169' }}>compaña</span>
-        </h3>
-        <p className="text-gray-700">Despliegue territorial para conectar localidades de Santa Cruz con la Fundación, promoviendo el trabajo articulado en beneficio de las familias santacruceñas.</p>
-      </div>
-
-      <div className="mb-6">
-        <h3 className="text-xl font-semibold mb-2">
-          <span style={{ color: '#f6bb3f' }}>Congresos</span>{' '}
-          <span style={{ color: '#e17a2d' }}>Internacionales</span>
-        </h3>
-        <p className="text-gray-700">Eventos internacionales de formación de primer nivel a efectos de promover la actualización del conocimiento, aplicación de metodologías de abordajes con evidencia empírica y la conexión con profesionales, familias y organizaciones alrededor del mundo.</p>
-      </div>
-
-      <div className="mb-6">
-        <h3 className="text-xl font-semibold mb-2">
-          <span style={{ color: '#f6bb3f' }}>I</span>
-          <span style={{ color: '#e17a2d' }}>TE</span>
-          <span style={{ color: '#99b169' }}>A</span>
-        </h3>
-        <p className="text-gray-700">Instituto para Trastornos del Espectro Autista, escuela especial de gestión privada, donde se trabaja de manera integral para garantizar el acceso a la educación de niños y jóvenes con TEA. La primera en su tipo en toda la región patagónica.</p>
-      </div>
-
-      <div className="mb-6">
-        <h3 className="text-xl font-semibold mb-2">
-          <span style={{ color: '#f6bb3f' }}>Familias</span>{' '}
-          <span style={{ color: '#e17a2d' }}>para</span>{' '}
-          <span style={{ color: '#99b169' }}>Familias</span>
-        </h3>
-        <p className="text-gray-700">Espacio de encuentros, en formato de capacitaciones y talleres, dictados por personas con condición del espectro autista o sus familiares y destinado específicamente a familias con integrantes con la misma condición.</p>
-      </div>
-
-      <div className="mb-6">
-        <h3 className="text-xl font-semibold mb-2">
-          <span style={{ color: '#f6bb3f' }}>Hacia el</span>{' '}
-          <span style={{ color: '#e17a2d' }}>empoderamiento</span>{' '}
-          <span style={{ color: '#99b169' }}>de las Familias</span>
-        </h3>
-        <p className="text-gray-700">Talleres teóricos prácticos dictados por profesionales de Fundación TEA Santa Cruz, destinados a docentes de nivel inicial y primario, familias y cuidadores de niños y niñas con condición del espectro autista.</p>
-      </div>
-
-      <div className="mb-6">
-        <h3 className="text-xl font-semibold mb-2">
-          <span style={{ color: '#f6bb3f' }}>Talleres</span>{' '}
-          <span style={{ color: '#e17a2d' }}>recreativos</span>
-        </h3>
-        <p className="text-gray-700">Talleres de relajación, baile, arte, etc., destinados a niños, adolescentes y jóvenes adultos con y sin condición de discapacidad, promoviendo la socialización, disfrute del tiempo libre y habilidades sociales.</p>
-      </div>
-
-      <div className="mb-6">
-        <h3 className="text-xl font-semibold mb-2">
-          <span style={{ color: '#f6bb3f' }}>Colonia</span>{' '}
-          <span style={{ color: '#e17a2d' }}>de</span>{' '}
-          <span style={{ color: '#99b169' }}>vacaciones</span>
-        </h3>
-        <p className="text-gray-700">Espacio recreativo destinado al disfrute del tiempo libre en periodo vacacional. Destinado a niños, adolescentes y jóvenes adultos con y sin condición de discapacidad, promoviendo la socialización y desarrollo de habilidades sociales.</p>
-      </div>
-
-      <p className="text-xl font-semibold text-tea-blue text-center mt-8">
+      <p className="text-xl font-semibold text-tea-blue text-center mt-10">
         ¡Gracias por ser parte de este camino hacia una sociedad más inclusiva!
       </p>
     </div>
@@ -217,7 +257,18 @@ const DonationPage = () => {
                                     </p>
                                 </div>
 
-                                <Button className="w-full mt-6 bg-[#165a91] hover:bg-[#1d4ed8] text-white font-semibold">
+                                <Button 
+                                    className="w-full mt-6 bg-[#165a91] hover:bg-[#1d4ed8] text-white font-semibold"
+                                    onClick={() => {
+                                        // Crear un enlace para descargar la imagen
+                                        const link = document.createElement('a');
+                                        link.href = '/images/qr-tea.png';
+                                        link.download = 'QR-Fundacion-TEA-Santa-Cruz.png';
+                                        document.body.appendChild(link);
+                                        link.click();
+                                        document.body.removeChild(link);
+                                    }}
+                                >
                                     Descargar QR
                                 </Button>
                             </div>
@@ -230,7 +281,19 @@ const DonationPage = () => {
                                         <MessageCircle size={32} className="text-green-600" />
                                     </div>
                                     <h3 className="text-xl font-bold text-center mb-4 text-green-700">Contacto Directo</h3>
-                                    <p className="text-gray-600 text-center mb-8">
+                                    <div className="flex justify-center mb-4">
+                                        <div className="w-48 h-48 bg-white flex items-center justify-center overflow-hidden">
+                                            <img
+                                                src="/images/dona-whatsapp.png"
+                                                alt="Dona por WhatsApp"
+                                                className="w-full h-full object-contain"
+                                                onError={(e) => {
+                                                    e.currentTarget.src = 'https://placehold.co/200x200/e4ffe4/25d366?text=WhatsApp';
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+                                    <p className="text-gray-600 text-center mb-4">
                                         Si tenés dudas o necesitás asistencia para donar, escribinos por WhatsApp y te guiamos en el proceso.
                                     </p>
                                 </div>
@@ -261,23 +324,6 @@ const DonationPage = () => {
                             para mejorar la calidad de vida de las personas con TEA y sus familias en Santa Cruz.
                             Tu aporte hace la diferencia.
                         </p>
-
-                        <div className="flex flex-wrap justify-center gap-4">
-                            <Button
-                                className="bg-white text-[#165a91] hover:bg-gray-100 font-semibold"
-                                onClick={() => window.location.href = "/acciones"}
-                            >
-                                Conoce Nuestros Programas
-                            </Button>
-                            <Button
-                                variant="outline"
-                                className="border-white text-white hover:bg-white hover:text-[#165a91] font-semibold"
-                                onClick={() => window.location.href = "/contacto"}
-                            >
-                                Contactar con Nosotros
-                            </Button>
-                        </div>
-
                         <div className="mt-12 flex items-center justify-center text-blue-100">
                             <Shield size={20} className="mr-2" />
                             <p className="text-sm">Todas las transacciones son seguras y están encriptadas</p>
@@ -286,6 +332,17 @@ const DonationPage = () => {
                 </section>
 
             </div>
+
+            {/* Back to Top Button */}
+            {showBackToTop && (
+                <button
+                    onClick={handleBackToTop}
+                    className="fixed bottom-8 right-8 bg-gradient-to-r from-[#f6bb3f] via-[#e17a2d] to-[#99b169] p-3 rounded-full shadow-lg hover:shadow-xl transition-all z-50 text-white"
+                    aria-label="Volver arriba"
+                >
+                    <ArrowUp size={24} />
+                </button>
+            )}
 
             <Footer />
         </div>
