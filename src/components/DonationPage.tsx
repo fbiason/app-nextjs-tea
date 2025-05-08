@@ -17,7 +17,7 @@ const DonationPage = () => {
 
                     <div className="relative z-10 container mx-auto text-center px-6">
                         <h1 className="text-4xl md:text-5xl font-extrabold mb-6 drop-shadow-lg leading-tight font-montserrat">
-                            DONA PARA AYUDARNOS A PROMOVER LA INCLUSIÓN DE PERSONAS CON TEA EN RÍO GALLEGOS
+                            DONA PARA AYUDARNOS A PROMOVER LA INCLUSIÓN DE PERSONAS CON TEA
                         </h1>
 
                         <p className="text-lg md:text-xl max-w-2xl mx-auto mb-8 text-white/90 drop-shadow-sm">
@@ -31,52 +31,108 @@ const DonationPage = () => {
                     </div>
                 </div>
 
-                {/* Mensaje inspirador */}
-                <section className="py-12 bg-white">
-                    <div className="container mx-auto px-4">
-                        <div className="max-w-4xl mx-auto">
-                            <p className="text-lg text-gray-700 mb-6">
-                                La Fundación TEA Santa Cruz desarrolla programas a través de los cuales promovemos la inclusión de las personas con Trastorno del Espectro Autista en nuestra sociedad.
-                            </p>
-                            <p className="text-lg text-gray-700 mb-6">
-                                Tu apoyo nos permite ampliar el impacto de nuestros programas vigentes y poder proyectarnos de un modo sostenible.
-                            </p>
-                            <p className="text-lg text-gray-700 mb-6">
-                                Nuestros programas actuales:
-                            </p>
+{/* Nuestras Acciones */}
+<section className="py-12 bg-white">
+  <div className="container mx-auto px-4">
+    <div className="max-w-4xl mx-auto">
+      <h2 className="text-2xl font-bold text-tea-blue mb-6 text-center">Nuestras Acciones</h2>
+      <p className="text-lg text-gray-700 mb-6">
+        Desde Fundación TEA Santa Cruz desarrollamos acciones que promueven la inclusión, el acceso a derechos y el fortalecimiento de redes de apoyo para personas con Trastorno del Espectro Autista (TEA) y sus familias.
+      </p>
 
-                            <div className="mb-6">
-                                <h3 className="text-xl font-semibold text-tea-blue mb-2">1. Programa de Acompañamiento Educativo</h3>
-                                <ul className="list-disc pl-6 space-y-2">
-                                    <li>Ofrecer los apoyos específicos para la inclusión de niños, niñas y jóvenes con TEA dentro del ámbito de la educación común</li>
-                                    <li>Sensibilizar a la comunidad educativa para que cada infancia o juventud con TEA tenga participación plena en su escuela y en su primer contexto social</li>
-                                </ul>
-                            </div>
+      <div className="mb-6">
+        <h3 className="text-xl font-semibold mb-2">
+          <span style={{ color: '#f6bb3f' }}>Ma</span>
+          <span style={{ color: '#e17a2d' }}>TEA</span>
+          <span style={{ color: '#99b169' }}>mos</span>
+        </h3>
+        <p className="text-gray-700">Espacio de encuentro para familiares de personas con condición del espectro autista, donde se comparten sentires y experiencias con total libertad, promoviendo el cuidado de la salud mental y el acompañamiento entre personas que transitan el mismo camino.</p>
+      </div>
 
-                            <div className="mb-6">
-                                <h3 className="text-xl font-semibold text-tea-blue mb-2">2. Programa de Actividades Recreativas y Vínculos</h3>
-                                <ul className="list-disc pl-6 space-y-2">
-                                    <li>Facilitar espacios de participación social y recreativa para niños, niñas y jóvenes con TEA</li>
-                                    <li>Promover encuentros sociales y actividades de esparcimiento que mejoren la calidad de vida</li>
-                                </ul>
-                            </div>
+      <div className="mb-6">
+        <h3 className="text-xl font-semibold mb-2">
+          <span style={{ color: '#f6bb3f' }}>Pile</span>
+          <span style={{ color: '#e17a2d' }}>TEA</span>
+          <span style={{ color: '#99b169' }}>mos</span>
+        </h3>
+        <p className="text-gray-700">Promoción de la actividad acuática y sus beneficios a través de la articulación con el Club Hispano Americano y la Municipalidad de Río Gallegos.</p>
+      </div>
 
-                            <div className="mb-6">
-                                <h3 className="text-xl font-semibold text-tea-blue mb-2">3. Programa Familias Informadas, Familias EMPODERADAS</h3>
-                                <p>Esta es una línea de acción que brinda información, formación y apoyo a las familias de personas con TEA.</p>
-                            </div>
+      <div className="mb-6">
+        <h3 className="text-xl font-semibold mb-2">
+          <span style={{ color: '#f6bb3f' }}>Orientación</span>{' '}
+          <span style={{ color: '#e17a2d' }}>Legal</span>
+        </h3>
+        <p className="text-gray-700">Orientación legal gratuita promoviendo el acceso a información que permita la defensa y ejercicio de los derechos de las personas con TEA y sus familias.</p>
+      </div>
 
-                            <div className="mb-6">
-                                <h3 className="text-xl font-semibold text-tea-blue mb-2">4. Programa Inclusión laboral</h3>
-                                <p>Buscamos sensibilizar a empresas y organizaciones para facilitar la inclusión laboral de personas jóvenes y adultas con TEA.</p>
-                            </div>
+      <div className="mb-6">
+        <h3 className="text-xl font-semibold mb-2">
+          <span style={{ color: '#e17a2d' }}>TEA</span>
+          <span style={{ color: '#99b169' }}>compaña</span>
+        </h3>
+        <p className="text-gray-700">Despliegue territorial para conectar localidades de Santa Cruz con la Fundación, promoviendo el trabajo articulado en beneficio de las familias santacruceñas.</p>
+      </div>
 
-                            <p className="text-xl font-semibold text-tea-blue text-center mt-8">
-                                ¡GRACIAS por tu apoyo a la Inclusión de personas con TEA!
-                            </p>
-                        </div>
-                    </div>
-                </section>
+      <div className="mb-6">
+        <h3 className="text-xl font-semibold mb-2">
+          <span style={{ color: '#f6bb3f' }}>Congresos</span>{' '}
+          <span style={{ color: '#e17a2d' }}>Internacionales</span>
+        </h3>
+        <p className="text-gray-700">Eventos internacionales de formación de primer nivel a efectos de promover la actualización del conocimiento, aplicación de metodologías de abordajes con evidencia empírica y la conexión con profesionales, familias y organizaciones alrededor del mundo.</p>
+      </div>
+
+      <div className="mb-6">
+        <h3 className="text-xl font-semibold mb-2">
+          <span style={{ color: '#f6bb3f' }}>I</span>
+          <span style={{ color: '#e17a2d' }}>TE</span>
+          <span style={{ color: '#99b169' }}>A</span>
+        </h3>
+        <p className="text-gray-700">Instituto para Trastornos del Espectro Autista, escuela especial de gestión privada, donde se trabaja de manera integral para garantizar el acceso a la educación de niños y jóvenes con TEA. La primera en su tipo en toda la región patagónica.</p>
+      </div>
+
+      <div className="mb-6">
+        <h3 className="text-xl font-semibold mb-2">
+          <span style={{ color: '#f6bb3f' }}>Familias</span>{' '}
+          <span style={{ color: '#e17a2d' }}>para</span>{' '}
+          <span style={{ color: '#99b169' }}>Familias</span>
+        </h3>
+        <p className="text-gray-700">Espacio de encuentros, en formato de capacitaciones y talleres, dictados por personas con condición del espectro autista o sus familiares y destinado específicamente a familias con integrantes con la misma condición.</p>
+      </div>
+
+      <div className="mb-6">
+        <h3 className="text-xl font-semibold mb-2">
+          <span style={{ color: '#f6bb3f' }}>Hacia el</span>{' '}
+          <span style={{ color: '#e17a2d' }}>empoderamiento</span>{' '}
+          <span style={{ color: '#99b169' }}>de las Familias</span>
+        </h3>
+        <p className="text-gray-700">Talleres teóricos prácticos dictados por profesionales de Fundación TEA Santa Cruz, destinados a docentes de nivel inicial y primario, familias y cuidadores de niños y niñas con condición del espectro autista.</p>
+      </div>
+
+      <div className="mb-6">
+        <h3 className="text-xl font-semibold mb-2">
+          <span style={{ color: '#f6bb3f' }}>Talleres</span>{' '}
+          <span style={{ color: '#e17a2d' }}>recreativos</span>
+        </h3>
+        <p className="text-gray-700">Talleres de relajación, baile, arte, etc., destinados a niños, adolescentes y jóvenes adultos con y sin condición de discapacidad, promoviendo la socialización, disfrute del tiempo libre y habilidades sociales.</p>
+      </div>
+
+      <div className="mb-6">
+        <h3 className="text-xl font-semibold mb-2">
+          <span style={{ color: '#f6bb3f' }}>Colonia</span>{' '}
+          <span style={{ color: '#e17a2d' }}>de</span>{' '}
+          <span style={{ color: '#99b169' }}>vacaciones</span>
+        </h3>
+        <p className="text-gray-700">Espacio recreativo destinado al disfrute del tiempo libre en periodo vacacional. Destinado a niños, adolescentes y jóvenes adultos con y sin condición de discapacidad, promoviendo la socialización y desarrollo de habilidades sociales.</p>
+      </div>
+
+      <p className="text-xl font-semibold text-tea-blue text-center mt-8">
+        ¡Gracias por ser parte de este camino hacia una sociedad más inclusiva!
+      </p>
+    </div>
+  </div>
+</section>
+
 
 
                 {/* Formulario de donación */}
@@ -195,49 +251,6 @@ const DonationPage = () => {
                     </div>
                 </section>
 
-                {/* Beneficios de tu donación */}
-                <section className="py-16 bg-gray-50">
-                    <div className="container mx-auto px-4">
-                        <h2 className="text-3xl font-bold text-center mb-12 text-[#165a91]">
-                            Beneficios de tu Donación
-                        </h2>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {/* Programas Educativos */}
-                            <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition">
-                                <CheckCircle2 className="text-[#f6bb3f] mb-4 mx-auto" size={48} />
-                                <h3 className="text-xl font-bold text-center mb-2 text-[#f6bb3f]">
-                                    Programas Educativos
-                                </h3>
-                                <p className="text-gray-600 text-center">
-                                    Tu donación financia programas educativos adaptados para niños y jóvenes con TEA.
-                                </p>
-                            </div>
-
-                            {/* Apoyo a Familias */}
-                            <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition">
-                                <CheckCircle2 className="text-[#e17a2d] mb-4 mx-auto" size={48} />
-                                <h3 className="text-xl font-bold text-center mb-2 text-[#e17a2d]">
-                                    Apoyo a Familias
-                                </h3>
-                                <p className="text-gray-600 text-center">
-                                    Ayudás a proporcionar orientación y apoyo a las familias de personas con TEA.
-                                </p>
-                            </div>
-
-                            {/* Actividades Recreativas */}
-                            <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition">
-                                <CheckCircle2 className="text-[#99b169] mb-4 mx-auto" size={48} />
-                                <h3 className="text-xl font-bold text-center mb-2 text-[#99b169]">
-                                    Actividades Recreativas
-                                </h3>
-                                <p className="text-gray-600 text-center">
-                                    Financiás actividades recreativas y terapéuticas que mejoran la calidad de vida.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </section>
 
                 {/* Sección de agradecimiento */}
                 <section className="py-16 bg-gradient-to-r from-[#165a91] to-blue-700 text-white">

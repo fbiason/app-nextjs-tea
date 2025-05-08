@@ -6,57 +6,71 @@ const programs = [
     name: 'MaTEAmos',
     image: '/images/acciones/mateamos.jpg',
     description:
-      'Encuentro diseñado para familias, promoviendo inclusión, diálogo y estrategias compartidas sobre el abordaje del TEA.',
+      'Espacio de encuentro para familiares de personas con condición del espectro autista, donde se comparten sentires y experiencias con total libertad, promoviendo el cuidado de la salud mental y el acompañamiento entre personas que transitan el mismo camino.',
   },
   {
     id: 'pileteamos',
     name: 'PileTEAmos',
     image: '/images/acciones/pileteamos.jpeg',
     description:
-      'Actividades acuáticas terapéuticas que promueven la integración sensorial y habilidades sociales.',
+      'Promoción de la actividad acuática y sus beneficios a través de la articulación con el Club Hispano Americano y la Municipalidad de Río Gallegos.',
   },
   {
     id: 'legal',
     name: 'Orientación Legal',
     image: '/images/acciones/legal.jpg',
     description:
-      'Asesoramiento jurídico sobre derechos y servicios, promoviendo la defensa legal de las personas con TEA.',
+      'Orientación legal gratuita promoviendo el acceso a información que permita la defensa y ejercicio de los derechos de las personas con TEA y sus familias.',
   },
   {
     id: 'teacompana',
     name: 'TEAcompaña',
-    image: '/images/acciones/teacompañamos.png',
+    image: '/images/acciones/teacompanamos.png',
     description:
-      'Despliegue territorial para conectar localidades de Santa Cruz con la Fundación, promoviendo comunicación y concientización.',
+      'Despliegue territorial para conectar localidades de Santa Cruz con la Fundación, promoviendo el trabajo articulado en beneficio de las familias santacruceñas.',
   },
   {
     id: 'congresos',
     name: 'Congresos Internacionales',
     image: '/images/acciones/congresos.jpeg',
     description:
-      'Eventos internacionales para compartir avances, experiencias e impulsar políticas públicas inclusivas.',
+      'Eventos internacionales de formación de primer nivel a efectos de promover la actualización del conocimiento, aplicación de metodologías de abordajes con evidencia empírica y la conexión con profesionales, familias y organizaciones alrededor del mundo.',
   },
   {
     id: 'itea',
     name: 'ITEA',
     image: '/images/acciones/itea.jpeg',
     description:
-      'Instituto de formación en TEA que combina tecnología, educación y personalización de recursos.',
+      'Instituto para Trastornos del Espectro Autista, escuela especial de gestión privada, donde se trabaja de manera integral para garantizar el acceso a la educación de niños y jóvenes con TEA. La primera en su tipo en toda la región patagónica.',
   },
   {
     id: 'familias',
     name: 'Familias para Familias',
     image: '/images/acciones/familias-para-familias.jpeg',
     description:
-      'Red de contención entre familias con TEA: mentorías, encuentros y aprendizaje compartido.',
+      'Espacio de encuentros, en formato de capacitaciones y talleres, dictados por personas con condición del espectro autista o sus familiares y destinado específicamente a familias con integrantes con la misma condición.',
   },
   {
     id: 'empoderamiento',
-    name: 'Empoderamiento de las Familias',
+    name: 'Hacia el empoderamiento de las Familias',
     image: '/images/acciones/empoderamiento.jpeg',
     description:
-      'Talleres, charlas y acompañamiento para fortalecer a las familias en el día a día.',
-  }
+      'Talleres teóricos prácticos dictados por profesionales de Fundación TEA Santa Cruz, destinados a docentes de nivel inicial y primario, familias y cuidadores de niños y niñas con condición del espectro autista.',
+  },
+  {
+    id: 'talleres-recreativos',
+    name: 'Talleres recreativos',
+    image: '/images/acciones/talleres-recreativos.jpeg',
+    description:
+      'Talleres de relajación, baile, arte, etc., destinados a niños, adolescentes y jóvenes adultos con y sin condición de discapacidad, promoviendo la socialización, disfrute del tiempo libre y habilidades sociales.',
+  },
+  {
+    id: 'colonia-vacaciones',
+    name: 'Colonia de vacaciones',
+    image: '/images/acciones/colonia-vacaciones.jpeg',
+    description:
+      'Espacio recreativo destinado al disfrute del tiempo libre en periodo vacacional. Destinado a niños, adolescentes y jóvenes adultos con y sin condición de discapacidad, promoviendo la socialización y desarrollo de habilidades sociales.',
+  },
 ];
 
 const ProgramsSection = () => {
@@ -71,11 +85,11 @@ const ProgramsSection = () => {
           </h2>
           <div className="w-20 h-1 mx-auto mb-6" style={{ backgroundColor: '#99b169' }}></div>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Desarrollamos programas que impactan en múltiples áreas de la vida de las personas con TEA, promoviendo inclusión, derechos y redes de apoyo.
+            Desarrollamos acciones que impactan en múltiples áreas de la vida de las personas con TEA, promoviendo inclusión, derechos y redes de apoyo.
           </p>
         </div>
 
-        {/* Cards de Programas */}
+        {/* Cards de Acciones */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           {programs.map((program) => (
             <div
@@ -98,6 +112,45 @@ const ProgramsSection = () => {
                       <span style={{ color: '#99b169' }}>
                         {program.name.split('TEA')[1]}
                       </span>
+                    </>
+                  ) : program.name === 'Orientación Legal' ? (
+                    <>
+                      <span style={{ color: '#f6bb3f' }}>Orientación</span>{' '}
+                      <span style={{ color: '#e17a2d' }}>Legal</span>
+                    </>
+                  ) : program.name === 'Congresos Internacionales' ? (
+                    <>
+                      <span style={{ color: '#f6bb3f' }}>Congresos</span>{' '}
+                      <span style={{ color: '#e17a2d' }}>Internacionales</span>
+                    </>
+                  ) : program.name === 'ITEA' ? (
+                    <>
+                      <span style={{ color: '#f6bb3f' }}>I</span>
+                      <span style={{ color: '#e17a2d' }}>TE</span>
+                      <span style={{ color: '#99b169' }}>A</span>
+                    </>
+                  ) : program.name === 'Familias para Familias' ? (
+                    <>
+                      <span style={{ color: '#f6bb3f' }}>Familias</span>{' '}
+                      <span style={{ color: '#e17a2d' }}>para</span>{' '}
+                      <span style={{ color: '#99b169' }}>Familias</span>
+                    </>
+                  ) : program.name === 'Hacia el empoderamiento de las Familias' ? (
+                    <>
+                      <span style={{ color: '#f6bb3f' }}>Hacia el</span>{' '}
+                      <span style={{ color: '#e17a2d' }}>empoderamiento</span>{' '}
+                      <span style={{ color: '#99b169' }}>de las Familias</span>
+                    </>
+                  ) : program.name === 'Talleres recreativos' ? (
+                    <>
+                      <span style={{ color: '#f6bb3f' }}>Talleres</span>{' '}
+                      <span style={{ color: '#e17a2d' }}>recreativos</span>
+                    </>
+                  ) : program.name === 'Colonia de vacaciones' ? (
+                    <>
+                      <span style={{ color: '#f6bb3f' }}>Colonia</span>{' '}
+                      <span style={{ color: '#e17a2d' }}>de</span>{' '}
+                      <span style={{ color: '#99b169' }}>vacaciones</span>
                     </>
                   ) : (
                     <span className="text-[#165a91]">{program.name}</span>
