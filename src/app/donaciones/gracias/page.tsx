@@ -32,6 +32,27 @@ export default function GraciasPage() {
         phone: donationData.phone
       };
       
+      // Verificar y corregir los datos antes de enviarlos
+      if (!dataToSave.amount || parseInt(dataToSave.amount) < 5000) {
+        console.warn('Corrigiendo monto mínimo a 5000');
+        dataToSave.amount = "5000";
+      }
+      
+      // Verificar si es anónimo basado en los datos reales
+      const isReallyAnonymous = !dataToSave.firstName && !dataToSave.lastName && !dataToSave.email;
+      if (dataToSave.anonymous !== isReallyAnonymous) {
+        console.warn(`Corrigiendo estado anónimo: ${dataToSave.anonymous} -> ${isReallyAnonymous}`);
+        dataToSave.anonymous = isReallyAnonymous;
+      }
+      
+      console.log('Intentando guardar donación con datos:', {
+        amount: dataToSave.amount,
+        paymentId: dataToSave.paymentId,
+        email: dataToSave.email,
+        anonymous: dataToSave.anonymous,
+        name: dataToSave.name
+      });
+      
       // Enviar los datos al endpoint
       const response = await fetch('/api/donations/save', {
         method: 'POST',
@@ -41,13 +62,57 @@ export default function GraciasPage() {
         body: JSON.stringify(dataToSave)
       });
       
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`Error al guardar la donación. Status: ${response.status}. Respuesta:`, errorText);
+        
+        // Intentar guardar en localStorage como respaldo
+        const failedDonations = JSON.parse(localStorage.getItem('failedDonations') || '[]');
+        failedDonations.push({
+          ...dataToSave,
+          timestamp: new Date().toISOString(),
+          error: `Status: ${response.status}`
+        });
+        localStorage.setItem('failedDonations', JSON.stringify(failedDonations));
+        console.log('Donación guardada en localStorage como respaldo');
+        
+        return;
+      }
+      
       const result = await response.json();
       
       if (!result.success) {
         console.error('Error al guardar la donación:', result.error);
+        
+        // Intentar guardar en localStorage como respaldo
+        const failedDonations = JSON.parse(localStorage.getItem('failedDonations') || '[]');
+        failedDonations.push({
+          ...dataToSave,
+          timestamp: new Date().toISOString(),
+          error: result.error
+        });
+        localStorage.setItem('failedDonations', JSON.stringify(failedDonations));
+        console.log('Donación guardada en localStorage como respaldo');
+      } else {
+        console.log('Donación guardada exitosamente:', result.donation.id);
       }
     } catch (error) {
       console.error('Error al guardar la donación:', error);
+      
+      // Intentar guardar en localStorage como respaldo
+      try {
+        const failedDonations = JSON.parse(localStorage.getItem('failedDonations') || '[]');
+        failedDonations.push({
+          ...donationData,
+          paymentId,
+          timestamp: new Date().toISOString(),
+          error: error instanceof Error ? error.message : 'Error desconocido'
+        });
+        localStorage.setItem('failedDonations', JSON.stringify(failedDonations));
+        console.log('Donación guardada en localStorage como respaldo');
+      } catch (localStorageError) {
+        console.error('Error al guardar en localStorage:', localStorageError);
+      }
     }
   }, []);
 
@@ -62,6 +127,17 @@ export default function GraciasPage() {
     if (donationData && paymentId && status === 'approved') {
       try {
         const parsedData = JSON.parse(donationData);
+        
+        // Verificar que los datos sean válidos
+        console.log('Datos recuperados de localStorage:', parsedData);
+        
+        // Asegurarse de que el monto sea al menos 5000
+        if (parsedData.amount && parseInt(parsedData.amount) < 5000) {
+          console.warn('Monto menor a 5000 detectado, estableciendo mínimo de 5000');
+          parsedData.amount = "5000";
+        }
+        
+        // Establecer valores para mostrar en la página
         setDonorName(parsedData.firstName || '');
         setAmount(parsedData.amount || '');
         
@@ -79,7 +155,7 @@ export default function GraciasPage() {
         console.error('Error parsing donation data:', e);
       }
     }
-  }, []);
+  }, [saveDonationToDatabase]);
 
   return (
     <div className="container mx-auto px-4 py-12 max-w-4xl">

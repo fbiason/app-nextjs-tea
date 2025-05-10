@@ -96,3 +96,104 @@ export async function sendDonationNotificationToAdmins(donationData: DonationDat
     return { success: false, error };
   }
 }
+
+/**
+ * Envía un correo electrónico de agradecimiento al donante cuando la donación no es anónima
+ * @param donationData Datos de la donación
+ */
+export async function sendThankYouEmailToDonor(donationData: DonationData) {
+  // Si la donación es anónima o no hay correo del donante, no enviamos nada
+  if (donationData.anonymous || !donationData.donorEmail) {
+    return { success: false, error: 'Donación anónima o sin correo electrónico' };
+  }
+
+  try {
+    // Formatear el monto para mostrarlo en pesos argentinos
+    const formatter = new Intl.NumberFormat('es-AR', {
+      style: 'currency',
+      currency: 'ARS',
+      minimumFractionDigits: 2
+    });
+    
+    const formattedAmount = formatter.format(donationData.amount);
+    const firstName = donationData.donorName?.split(' ')[0] || 'Donante';
+    const frequency = donationData.frequency || 'once';
+    
+    // Crear el contenido del correo
+    const subject = `¡Gracias por tu donación a Fundación TEA Santa Cruz!`;
+    
+    const htmlContent = `
+      <div style="font-family: Arial, sans-serif; color: #222; background: #f8fafc; padding: 24px;">
+        <h2 style="color: #165a91; font-size: 24px; font-weight: bold; margin-bottom: 16px;">¡Gracias por tu donación!</h2>
+        
+        <p style="font-size: 18px; color: #333; margin-bottom: 16px;">
+          ${firstName}, tu generosidad hace una gran diferencia.
+        </p>
+        
+        <p style="font-size: 16px; color: #555; margin-bottom: 24px;">
+          Tu donación ${frequency === 'monthly' ? 'mensual' : 'única'} de <strong>${formattedAmount}</strong> ha sido recibida con éxito y ayudará a continuar 
+          con nuestra misión de apoyar a personas con TEA y sus familias.
+        </p>
+        
+        <div style="background: #EBF5FF; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+          <h3 style="color: #165a91; font-size: 18px; font-weight: bold; margin-bottom: 12px;">
+            ¿Qué lograremos con tu apoyo?
+          </h3>
+          <ul style="text-align: left; color: #444; padding-left: 20px;">
+            <li style="margin-bottom: 8px;">Ampliar nuestros programas de intervención temprana</li>
+            <li style="margin-bottom: 8px;">Brindar capacitación a profesionales y familias</li>
+            <li style="margin-bottom: 8px;">Realizar campañas de concientización sobre el TEA</li>
+            <li style="margin-bottom: 8px;">Mejorar la calidad de vida de las personas con TEA</li>
+          </ul>
+        </div>
+        
+        ${frequency === 'monthly' ? `
+        <p style="font-size: 16px; color: #555; margin-bottom: 16px;">
+          Como has elegido una donación mensual, recibirás un recordatorio cada mes para renovar tu compromiso.
+        </p>
+        ` : ''}
+        
+        <a 
+          href="https://fundacionteasantacruz.org/donaciones" 
+          style="
+            display: inline-block;
+            background: #f6bb3f;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 16px;
+            margin-bottom: 24px;
+          "
+        >
+          Realizar otra donación
+        </a>
+        
+        <div style="margin-top: 24px; border-top: 1px solid #ddd; padding-top: 16px;">
+          <p style="font-size: 14px; color: #888;">Fundación TEA Santa Cruz</p>
+          <p style="font-size: 14px; color: #888;">#somosinfinitos</p>
+        </div>
+      </div>
+    `;
+    
+    // Enviar el correo al donante
+    const { data, error } = await resend.emails.send({
+      from: 'Fundación TEA Santa Cruz <onboarding@resend.dev>',
+      to: donationData.donorEmail,
+      subject,
+      html: htmlContent,
+    });
+    
+    if (error) {
+      console.error('Error al enviar correo de agradecimiento:', error);
+      return { success: false, error };
+    }
+    
+    console.log('Correo de agradecimiento enviado con éxito:', data);
+    return { success: true, data };
+  } catch (error) {
+    console.error('Error al enviar correo de agradecimiento:', error);
+    return { success: false, error };
+  }
+}

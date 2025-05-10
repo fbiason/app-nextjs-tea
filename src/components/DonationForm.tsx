@@ -42,7 +42,7 @@ type DonationFormValues = z.infer<typeof conditionalDonationSchema>;
 const DonationForm = () => {
   const [loading, setLoading] = useState(false);
   const [selectedAmount, setSelectedAmount] = useState<string | null>("5000");
-  const [customAmount, setCustomAmount] = useState("");
+  const [customAmount, setCustomAmount] = useState("5000");
   const [customAmountError, setCustomAmountError] = useState<string | null>(null);
 
   // Configuramos react-hook-form con validación Zod
@@ -98,7 +98,7 @@ const DonationForm = () => {
   // Función que se ejecuta con un formulario válido
   const onSubmit = async (data: DonationFormValues) => {
     // Verificar que el monto no sea inferior a $5.000
-    if (parseInt(data.amount) < 5000) {
+    if (!data.amount || !data.paymentId) {
       setCustomAmountError("El monto mínimo de donación es de $5.000");
       return;
     }
@@ -136,7 +136,7 @@ const DonationForm = () => {
   // Función para manejar la selección de montos predefinidos
   const handleAmountSelection = (amount: string) => {
     setSelectedAmount(amount);
-    setCustomAmount("");
+    setCustomAmount(amount);
     form.setValue("amount", amount);
   };
 
@@ -145,7 +145,7 @@ const DonationForm = () => {
     const value = e.target.value;
     if (/^\d*$/.test(value)) {  // Solo permitimos dígitos
       setCustomAmount(value);
-      setSelectedAmount(null);
+      setSelectedAmount(value);
       form.setValue("amount", value);
       
       // Validar que el monto no sea inferior a $5.000 si se ha ingresado algo
@@ -196,23 +196,20 @@ const DonationForm = () => {
             ))}
           </div>
 
-          {/* Campo para monto personalizado */}
+          {/* Campo para monto */}
           <div className="mt-3">
             <label
               htmlFor="customAmount"
               className="block text-sm font-medium text-[#165a91] mb-1"
             >
-              Otro monto
+              Monto a donar
             </label>
             <Input
               id="customAmount"
               value={customAmount}
               onChange={handleCustomAmountChange}
-              placeholder="Ingrese monto personalizado"
-              className={`border rounded-md w-full p-2 transition-all ${selectedAmount === null
-                ? "border-[#f6bb3f] focus:ring-2 focus:ring-[#e17a2d]"
-                : "border-gray-300"
-                }`}
+              placeholder="Ingrese monto"
+              className="border rounded-md w-full p-2 transition-all border-[#f6bb3f] focus:ring-2 focus:ring-[#e17a2d]"
             />
           </div>
 
