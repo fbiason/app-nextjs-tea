@@ -24,10 +24,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" className="scroll-smooth">
-      <head>
-        <link rel="icon" href="/images/favicon.webp" type="image/webp" />
-      </head>
       <body
+        suppressHydrationWarning={true}
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-white`}
       >
         <main className="mt-32">
