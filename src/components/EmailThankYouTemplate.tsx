@@ -45,7 +45,7 @@ export const EmailThankYouTemplate: React.FC<Readonly<EmailThankYouTemplateProps
             )}
 
             <a
-                href="https://fundacionteasantacruz.org/donaciones"
+                href="https://fundacionteasantacruz.org.ar/donaciones"
                 style={{
                     display: 'inline-block',
                     background: '#f6bb3f',

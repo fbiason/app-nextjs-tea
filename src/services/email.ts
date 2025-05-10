@@ -154,7 +154,7 @@ export async function sendThankYouEmailToDonor(donationData: DonationData) {
         ` : ''}
         
         <a 
-          href="https://fundacionteasantacruz.org/donaciones" 
+          href="https://fundacionteasantacruz.org.ar/donaciones" 
           style="
             display: inline-block;
             background: #f6bb3f;
