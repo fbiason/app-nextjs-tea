@@ -15,6 +15,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Fundación TEA Santa Cruz",
   description: "Trabajamos por la inclusión real de personas con TEA en Río Gallegos.",
+  icons: {
+    icon: "/images/favicon.png"
+  }
 };
 
 export default function RootLayout({
