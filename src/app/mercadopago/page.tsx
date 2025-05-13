@@ -9,7 +9,7 @@ export default function MercadoPagoAuthPage() {
   const [authUrl, setAuthUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [connected, setConnected] = useState(false);
+  const [connected] = useState(false); // No necesitamos setConnected ya que redirigimos inmediatamente
 
   useEffect(() => {
     // Verificar si ya hay una conexión activa
@@ -19,7 +19,9 @@ export default function MercadoPagoAuthPage() {
         const data = await response.json();
         
         if (data.success && data.connected) {
-          setConnected(true);
+          // Si ya hay una conexión activa, redirigimos inmediatamente a la página principal
+          window.location.href = '/';
+          return; // Importante: detenemos la ejecución aquí para evitar que se muestre la página
         } else {
           // Obtener la URL de autorización
           const authResponse = await fetch('/api/mercadopago/authorize');
@@ -68,6 +70,9 @@ export default function MercadoPagoAuthPage() {
                 <h3 className="font-semibold text-green-800 text-lg">Cuenta conectada correctamente</h3>
                 <p className="text-green-700 mt-2">
                   Tu cuenta de MercadoPago está conectada y lista para recibir donaciones.
+                </p>
+                <p className="text-green-700 mt-2 italic">
+                  Redirigiendo a la página principal...
                 </p>
               </div>
             </div>

@@ -1,4 +1,5 @@
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
+import { dirname } from "node:path";
 
 import { MercadoPagoConfig, Preference, OAuth } from "mercadopago";
 
@@ -18,11 +19,44 @@ export const mercadopago = new MercadoPagoConfig({ accessToken: process.env.MP_A
 const api = {
     user: {
         async fetch(): Promise<User> {
+            const dbPath = "db/user.db";
+            
+            // Verificamos si el directorio existe, si no, lo creamos
+            const dir = dirname(dbPath);
+            if (!existsSync(dir)) {
+                mkdirSync(dir, { recursive: true });
+            }
+            
+            // Verificamos si el archivo existe
+            if (!existsSync(dbPath)) {
+                // Si no existe, creamos un archivo con datos por defecto
+                // Importante: solo debe haber un único usuario administrador
+                const defaultUser: User = {
+                    id: 1,
+                    name: "Admin",
+                    marketplace: null
+                };
+                writeFileSync(dbPath, JSON.stringify(defaultUser, null, 2));
+                return defaultUser;
+            }
+            
             // Leemos el archivo de la base de datos del usuario
-            const db = readFileSync("db/user.db");
+            const db = readFileSync(dbPath);
 
-            // Devolvemos los datos como un objeto
-            return JSON.parse(db.toString());
+            try {
+                // Devolvemos los datos como un objeto
+                return JSON.parse(db.toString());
+            } catch (error) {
+                // Si hay un error al parsear el JSON, creamos un nuevo archivo con datos por defecto
+                console.error("Error al parsear el archivo de usuario, creando uno nuevo:", error);
+                const defaultUser: User = {
+                    id: 1,
+                    name: "Admin",
+                    marketplace: null
+                };
+                writeFileSync(dbPath, JSON.stringify(defaultUser, null, 2));
+                return defaultUser;
+            }
         },
         async update(data: Partial<User>): Promise<void> {
             // Obtenemos los datos del usuario
@@ -57,14 +91,37 @@ const api = {
                 },
             });
 
+            // Actualizamos automáticamente el usuario con el token de marketplace
+            // Esto asegura que solo haya una única cuenta vinculada a MercadoPago
+            if (credentials.access_token) {
+                await api.user.update({
+                    marketplace: credentials.access_token
+                });
+            }
+
             // Devolvemos las credenciales
             return credentials;
         },
     },
     message: {
         async list(): Promise<Message[]> {
+            const dbPath = "db/message.db";
+            
+            // Verificamos si el directorio existe, si no, lo creamos
+            const dir = dirname(dbPath);
+            if (!existsSync(dir)) {
+                mkdirSync(dir, { recursive: true });
+            }
+            
+            // Verificamos si el archivo existe
+            if (!existsSync(dbPath)) {
+                // Si no existe, creamos un archivo con un array vacío
+                writeFileSync(dbPath, JSON.stringify([], null, 2));
+                return [];
+            }
+            
             // Leemos el archivo de la base de datos de los mensajes
-            const db = readFileSync("db/message.db");
+            const db = readFileSync(dbPath);
 
             // Devolvemos los datos como un array de objetos
             return JSON.parse(db.toString());
