@@ -1,7 +1,5 @@
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
-import { dirname } from "node:path";
-
 import { MercadoPagoConfig, Preference, OAuth } from "mercadopago";
+import { supabase } from "./lib/supabase";
 
 interface Message {
     id: number;
@@ -19,54 +17,60 @@ export const mercadopago = new MercadoPagoConfig({ accessToken: process.env.MP_A
 const api = {
     user: {
         async fetch(): Promise<User> {
-            const dbPath = "db/user.db";
-            
-            // Verificamos si el directorio existe, si no, lo creamos
-            const dir = dirname(dbPath);
-            if (!existsSync(dir)) {
-                mkdirSync(dir, { recursive: true });
-            }
-            
-            // Verificamos si el archivo existe
-            if (!existsSync(dbPath)) {
-                // Si no existe, creamos un archivo con datos por defecto
-                // Importante: solo debe haber un único usuario administrador
-                const defaultUser: User = {
-                    id: 1,
-                    name: "Admin",
-                    marketplace: null
-                };
-                writeFileSync(dbPath, JSON.stringify(defaultUser, null, 2));
-                return defaultUser;
-            }
-            
-            // Leemos el archivo de la base de datos del usuario
-            const db = readFileSync(dbPath);
-
             try {
-                // Devolvemos los datos como un objeto
-                return JSON.parse(db.toString());
-            } catch (error) {
-                // Si hay un error al parsear el JSON, creamos un nuevo archivo con datos por defecto
-                console.error("Error al parsear el archivo de usuario, creando uno nuevo:", error);
+                // Obtenemos el usuario desde Supabase
+                const { data, error } = await supabase
+                    .from('tea_users')
+                    .select('*')
+                    .eq('id', 1)
+                    .single();
+                
+                if (error) throw error;
+                
+                // Si existe el usuario, lo devolvemos
+                if (data) {
+                    return data as User;
+                }
+                
+                // Si no existe, creamos uno por defecto
                 const defaultUser: User = {
                     id: 1,
                     name: "Admin",
                     marketplace: null
                 };
-                writeFileSync(dbPath, JSON.stringify(defaultUser, null, 2));
+                
+                // Insertamos el usuario por defecto
+                const { error: insertError } = await supabase
+                    .from('tea_users')
+                    .insert(defaultUser);
+                    
+                if (insertError) throw insertError;
+                
                 return defaultUser;
+            } catch (error) {
+                console.error("Error al obtener el usuario:", error);
+                
+                // En caso de error, devolvemos un usuario por defecto
+                return {
+                    id: 1,
+                    name: "Admin",
+                    marketplace: null
+                };
             }
         },
         async update(data: Partial<User>): Promise<void> {
-            // Obtenemos los datos del usuario
-            const db = await api.user.fetch();
-
-            // Extendemos los datos con los nuevos datos
-            const draft = { ...db, ...data };
-
-            // Guardamos los datos
-            writeFileSync("db/user.db", JSON.stringify(draft, null, 2));
+            try {
+                // Actualizamos el usuario en Supabase
+                const { error } = await supabase
+                    .from('tea_users')
+                    .update(data)
+                    .eq('id', 1);
+                    
+                if (error) throw error;
+            } catch (error) {
+                console.error("Error al actualizar el usuario:", error);
+                throw error;
+            }
         },
         async authorize() {
             // Obtenemos la url de autorización
@@ -105,41 +109,47 @@ const api = {
     },
     message: {
         async list(): Promise<Message[]> {
-            const dbPath = "db/message.db";
-            
-            // Verificamos si el directorio existe, si no, lo creamos
-            const dir = dirname(dbPath);
-            if (!existsSync(dir)) {
-                mkdirSync(dir, { recursive: true });
-            }
-            
-            // Verificamos si el archivo existe
-            if (!existsSync(dbPath)) {
-                // Si no existe, creamos un archivo con un array vacío
-                writeFileSync(dbPath, JSON.stringify([], null, 2));
+            try {
+                // Obtenemos los mensajes desde Supabase
+                const { data, error } = await supabase
+                    .from('tea_messages')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+                    
+                if (error) throw error;
+                
+                // Devolvemos los mensajes
+                return data as Message[] || [];
+            } catch (error) {
+                console.error("Error al obtener los mensajes:", error);
                 return [];
             }
-            
-            // Leemos el archivo de la base de datos de los mensajes
-            const db = readFileSync(dbPath);
-
-            // Devolvemos los datos como un array de objetos
-            return JSON.parse(db.toString());
         },
         async add(message: Message): Promise<void> {
-            // Obtenemos los mensajes
-            const db = await api.message.list();
-
-            // Si ya existe un mensaje con ese id, lanzamos un error
-            if (db.some((_message) => _message.id === message.id)) {
-                throw new Error("Message already added");
+            try {
+                // Verificamos si ya existe un mensaje con ese id
+                const { data, error: checkError } = await supabase
+                    .from('tea_messages')
+                    .select('id')
+                    .eq('id', message.id);
+                    
+                if (checkError) throw checkError;
+                
+                // Si ya existe un mensaje con ese id, lanzamos un error
+                if (data && data.length > 0) {
+                    throw new Error("Message already added");
+                }
+                
+                // Insertamos el nuevo mensaje
+                const { error } = await supabase
+                    .from('tea_messages')
+                    .insert(message);
+                    
+                if (error) throw error;
+            } catch (error) {
+                console.error("Error al agregar el mensaje:", error);
+                throw error;
             }
-
-            // Agregamos el nuevo mensaje
-            const draft = db.concat(message);
-
-            // Guardamos los datos
-            writeFileSync("db/message.db", JSON.stringify(draft, null, 2));
         },
         async submit(text: Message["text"], marketplace: string) {
             // Creamos el cliente de Mercado Pago usando el access token del Marketplace
