@@ -60,14 +60,14 @@ const programs = [
   {
     id: 'talleres-recreativos',
     name: 'Talleres recreativos',
-    image: '/images/acciones/talleres-recreativos.jpeg',
+    image: '/images/acciones/talleres-recreativos.png',
     description:
       'Talleres de relajación, baile, arte, etc., destinados a niños, adolescentes y jóvenes adultos con y sin condición de discapacidad, promoviendo la socialización, disfrute del tiempo libre y habilidades sociales.',
   },
   {
     id: 'colonia-vacaciones',
     name: 'Colonia de vacaciones',
-    image: '/images/acciones/colonia-vacaciones.jpeg',
+    image: '/images/acciones/colonia-vacaciones.png',
     description:
       'Espacio recreativo destinado al disfrute del tiempo libre en periodo vacacional. Destinado a niños, adolescentes y jóvenes adultos con y sin condición de discapacidad, promoviendo la socialización y desarrollo de habilidades sociales.',
   },
