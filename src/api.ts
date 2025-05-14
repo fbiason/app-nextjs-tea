@@ -19,39 +19,24 @@ const api = {
     user: {
         async fetch(): Promise<User> {
             try {
-                // Obtenemos el usuario desde Supabase
-                const { data, error } = await supabase
-                    .from('tea_users')
-                    .select('*')
-                    .eq('id', 1)
-                    .single();
+                // Comprobamos si existe un token de marketplace almacenado en localStorage o environment
+                let marketplaceToken = null;
                 
-                if (error) throw error;
-                
-                // Si existe el usuario, lo devolvemos
-                if (data) {
-                    return data as User;
+                // Intentamos obtener el token desde una variable de entorno
+                if (process.env.MP_MARKETPLACE_TOKEN) {
+                    marketplaceToken = process.env.MP_MARKETPLACE_TOKEN;
                 }
                 
-                // Si no existe, creamos uno por defecto
-                const defaultUser: User = {
+                // Devolvemos un usuario con el token si existe
+                return {
                     id: 1,
                     name: "Admin",
-                    marketplace: null
+                    marketplace: marketplaceToken
                 };
-                
-                // Insertamos el usuario por defecto
-                const { error: insertError } = await supabase
-                    .from('tea_users')
-                    .insert(defaultUser);
-                    
-                if (insertError) throw insertError;
-                
-                return defaultUser;
             } catch (error) {
                 console.error("Error al obtener el usuario:", error);
                 
-                // En caso de error, devolvemos un usuario por defecto
+                // En caso de error, devolvemos un usuario por defecto sin token
                 return {
                     id: 1,
                     name: "Admin",
@@ -61,16 +46,18 @@ const api = {
         },
         async update(data: Partial<User>): Promise<void> {
             try {
-                // Actualizamos el usuario en Supabase
-                const { error } = await supabase
-                    .from('tea_users')
-                    .update(data)
-                    .eq('id', 1);
-                    
-                if (error) throw error;
+                // En entorno de producción, no hacemos nada ya que no guardamos en la base de datos
+                // Solo registramos lo que se intentó guardar para debugging
+                console.log("Actualizando datos de usuario:", data);
+                
+                // Si hay datos de marketplace, podríamos guardarlos en una variable de entorno
+                // o en otro almacenamiento persistente según necesidades
+                if (data.marketplace) {
+                    console.log("Nuevo token de marketplace recibido");
+                    // En un entorno real, aquí guardaríamos el token en algún lugar seguro
+                }
             } catch (error) {
-                console.error("Error al actualizar el usuario:", error);
-                throw error;
+                console.error("Error al procesar la actualización:", error);
             }
         },
         async authorize() {
@@ -86,26 +73,32 @@ const api = {
             return url;
         },
         async connect(code: string) {
-            // Obtenemos las credenciales del usuario usando el code que obtuvimos de oauth
-            const credentials = await new OAuth(mercadopago).create({
-                body: {
-                    client_id: process.env.NEXT_PUBLIC_MP_CLIENT_ID,
-                    client_secret: process.env.MP_CLIENT_SECRET,
-                    code,
-                    redirect_uri: `${process.env.APP_URL}/api/mercadopago/connect`,
-                },
-            });
-
-            // Actualizamos automáticamente el usuario con el token de marketplace
-            // Esto asegura que solo haya una única cuenta vinculada a MercadoPago
-            if (credentials.access_token) {
-                await api.user.update({
-                    marketplace: credentials.access_token
+            try {
+                // Obtenemos las credenciales del usuario usando el code que obtuvimos de oauth
+                const credentials = await new OAuth(mercadopago).create({
+                    body: {
+                        client_id: process.env.NEXT_PUBLIC_MP_CLIENT_ID,
+                        client_secret: process.env.MP_CLIENT_SECRET,
+                        code,
+                        redirect_uri: `${process.env.APP_URL}/api/mercadopago/connect`,
+                    },
                 });
-            }
 
-            // Devolvemos las credenciales
-            return credentials;
+                // En lugar de guardar en la base de datos, solo loggeamos el token para configurarlo manualmente
+                if (credentials.access_token) {
+                    console.log('======================================================');
+                    console.log('TOKEN DE MARKETPLACE OBTENIDO EXITOSAMENTE');
+                    console.log('Añade esta variable a tu archivo .env:');
+                    console.log(`MP_MARKETPLACE_TOKEN=${credentials.access_token}`);
+                    console.log('======================================================');
+                }
+
+                // Devolvemos las credenciales
+                return credentials;
+            } catch (error) {
+                console.error("Error al conectar con MercadoPago:", error);
+                throw error;
+            }
         },
     },
     message: {

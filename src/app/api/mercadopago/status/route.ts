@@ -1,4 +1,3 @@
-import api from "@/api";
 import { NextResponse } from "next/server";
 
 /**
@@ -7,17 +6,15 @@ import { NextResponse } from "next/server";
  */
 export async function GET() {
   try {
-    // Obtenemos los datos del usuario
-    const user = await api.user.fetch();
-    
-    // Verificamos si tiene un token de marketplace configurado
-    const connected = !!user.marketplace;
+    // Verificamos directamente si hay un token de marketplace en las variables de entorno
+    // En lugar de usar la base de datos, simplemente comprobamos la variable de entorno
+    const connected = !!process.env.MP_MARKETPLACE_TOKEN;
     
     // Devolvemos el estado de la conexión
     return NextResponse.json({
       success: true,
       connected,
-      // Si está conectado, podemos devolver información adicional
+      // Si está conectado, devolvemos información adicional
       ...(connected && { 
         marketplace_token_exists: true,
         // No devolvemos el token real por seguridad
