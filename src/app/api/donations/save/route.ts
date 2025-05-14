@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+// Importamos el cliente centralizado de Prisma
+import { prisma } from "@/lib/prisma";
 import { sendDonationNotificationToAdmins, sendThankYouEmailToDonor } from "@/services/email";
 
-const prisma = new PrismaClient();
+// Eliminada la creación de una nueva instancia de Prisma
 
 /**
  * Endpoint para guardar donaciones directamente desde el frontend

@@ -1,5 +1,6 @@
 import { MercadoPagoConfig, Preference, OAuth } from "mercadopago";
 import { supabase } from "./lib/supabase";
+// Eliminamos cualquier referencia a Prisma para evitar problemas con creación de directorios
 
 interface Message {
     id: number;

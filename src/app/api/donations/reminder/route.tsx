@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { EmailReminderTemplate } from "@/components/EmailReminderTemplate";
-import { PrismaClient } from "@prisma/client";
+// Importamos el cliente centralizado de Prisma
+import { prisma } from "@/lib/prisma";
 import React from "react";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-const prisma = new PrismaClient();
+// Usamos el cliente centralizado de Prisma
 
 // Ejecutar este endpoint con un cron diario
 export async function POST() {

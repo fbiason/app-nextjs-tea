@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+// Importamos el cliente centralizado de Prisma
+import { prisma } from "@/lib/prisma";
 
-const prisma = new PrismaClient();
+// Usamos el cliente centralizado de Prisma
 
 export async function GET() {
   try {

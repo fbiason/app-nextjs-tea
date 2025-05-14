@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { MercadoPagoConfig, Payment } from "mercadopago";
-import { PrismaClient } from "@prisma/client";
+// Importamos el cliente centralizado de Prisma
+import { prisma } from "@/lib/prisma";
 import { saveLog } from './debug';
 
 // Configuración de MercadoPago
@@ -9,7 +10,7 @@ const mercadopago = new MercadoPagoConfig({
 });
 
 // Inicializar Prisma Client
-const prisma = new PrismaClient();
+// Usamos el cliente centralizado de Prisma
 
 export async function POST(request: Request) {
   console.log('🔔 WEBHOOK: Notificación recibida de MercadoPago');

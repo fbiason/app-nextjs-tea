@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+// Importamos el cliente centralizado de Prisma en lugar de crear una nueva instancia
+import { prisma } from "@/lib/prisma";
 import { MercadoPagoConfig, Payment } from "mercadopago";
 import { saveLog } from './debug';
 
 // Inicializar Prisma Client para poder registrar donaciones directamente
-const prisma = new PrismaClient();
+// Ya no necesitamos crear una nueva instancia de PrismaClient aquí
 
 // Configuración de MercadoPago
 const mercadopago = new MercadoPagoConfig({ 
