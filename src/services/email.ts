@@ -78,7 +78,7 @@ export async function sendDonationNotificationToAdmins(donationData: DonationDat
     
     // Enviar el correo a los administradores
     const { data, error } = await resend.emails.send({
-      from: 'Fundación TEA Santa Cruz <onboarding@resend.dev>',
+      from: 'Fundación TEA Santa Cruz <fund.teasantacruz@gmail.com>',
       to: ADMIN_EMAILS,
       subject,
       html: htmlContent,
@@ -179,7 +179,7 @@ export async function sendThankYouEmailToDonor(donationData: DonationData) {
     
     // Enviar el correo al donante
     const { data, error } = await resend.emails.send({
-      from: 'Fundación TEA Santa Cruz <onboarding@resend.dev>',
+      from: 'Fundación TEA Santa Cruz <fund.teasantacruz@gmail.com>',
       to: donationData.donorEmail,
       subject,
       html: htmlContent,

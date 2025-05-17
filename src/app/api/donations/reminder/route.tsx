@@ -43,7 +43,7 @@ export async function POST() {
       const donationUrl = `${process.env.APP_URL}/donaciones`;
       
       const { error } = await resend.emails.send({
-        from: 'Fundación TEA Santa Cruz <onboarding@resend.dev>',
+        from: 'Fundación TEA Santa Cruz <fund.teasantacruz@gmail.com>',
         to: [donation.donorEmail],
         subject: '¡Gracias por tu apoyo! ¿Te gustaría donar nuevamente?',
         react: React.createElement(EmailReminderTemplate, { firstName, donationUrl }),
