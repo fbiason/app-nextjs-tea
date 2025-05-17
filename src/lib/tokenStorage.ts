@@ -98,16 +98,26 @@ export async function getTokens(): Promise<MPTokenData | null> {
       return null;
     }
 
-    const parsedData = JSON.parse(storedData.value) as MPTokenData & {
+    // Parseamos los datos almacenados
+    const rawData = JSON.parse(storedData.value) as {
+      accessToken: string;
+      refreshToken?: string;
+      userId?: string;
+      publicKey?: string;
       expiresAt?: string;
       updatedAt?: string;
       iv?: string;
     };
-
-    // Convertimos las cadenas de fecha a objetos Date
-    if (parsedData.expiresAt) {
-      parsedData.expiresAt = new Date(parsedData.expiresAt);
-    }
+    
+    // Creamos un nuevo objeto con los tipos correctos
+    const parsedData: MPTokenData = {
+      accessToken: rawData.accessToken,
+      refreshToken: rawData.refreshToken,
+      userId: rawData.userId,
+      publicKey: rawData.publicKey,
+      // Convertimos la cadena de fecha a objeto Date si existe
+      expiresAt: rawData.expiresAt ? new Date(rawData.expiresAt) : undefined
+    };
 
     // Verificamos si el token ha expirado
     if (parsedData.expiresAt && parsedData.expiresAt < new Date()) {
