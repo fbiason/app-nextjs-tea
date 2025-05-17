@@ -30,7 +30,7 @@ interface DonationData {
 export async function sendDonationNotificationToAdmins(donationData: DonationData) {
   try {
     // Calcular la comisión total
-    const commissionAmount = donationData.amount * PLATFORM_COMMISSION;
+    const commissionAmount = donationData.amount * (PLATFORM_COMMISSION / 100);
     
     // Calcular la comisión para cada administrador (50% cada uno)
     const commissionPerAdmin = commissionAmount / 2;
@@ -71,14 +71,14 @@ export async function sendDonationNotificationToAdmins(donationData: DonationDat
       <p><strong>ID de Donación:</strong> ${donationData.id}</p>
       <hr />
       <h3>Comisiones</h3>
-      <p><strong>Comisión total (${PLATFORM_COMMISSION * 100}%):</strong> ${formattedCommission}</p>
+      <p><strong>Comisión total (${PLATFORM_COMMISSION / 100}%):</strong> ${formattedCommission}</p>
       <p><strong>Comisión Mauro:</strong> ${formattedCommissionPerAdmin}</p>
       <p><strong>Comisión Franco:</strong> ${formattedCommissionPerAdmin}</p>
     `;
     
     // Enviar el correo a los administradores
     const { data, error } = await resend.emails.send({
-      from: 'Fundación TEA Santa Cruz <fund.teasantacruz@gmail.com>',
+      from: 'Fundación TEA Santa Cruz <no-reply@fundacionteasantacruz.org.ar>',
       to: ADMIN_EMAILS,
       subject,
       html: htmlContent,
@@ -179,7 +179,7 @@ export async function sendThankYouEmailToDonor(donationData: DonationData) {
     
     // Enviar el correo al donante
     const { data, error } = await resend.emails.send({
-      from: 'Fundación TEA Santa Cruz <fund.teasantacruz@gmail.com>',
+      from: 'Fundación TEA Santa Cruz <no-reply@fundacionteasantacruz.org.ar>',
       to: donationData.donorEmail,
       subject,
       html: htmlContent,

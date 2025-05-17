@@ -41,15 +41,15 @@ type DonationFormValues = z.infer<typeof conditionalDonationSchema>;
 
 const DonationForm = () => {
   const [loading, setLoading] = useState(false);
-  const [selectedAmount, setSelectedAmount] = useState<string | null>("5000");
-  const [customAmount, setCustomAmount] = useState("5000");
+  const [selectedAmount, setSelectedAmount] = useState<string | null>("");
+  const [customAmount, setCustomAmount] = useState("");
   const [customAmountError, setCustomAmountError] = useState<string | null>(null);
 
   // Configuramos react-hook-form con validación Zod
   const form = useForm<DonationFormValues>({
     resolver: zodResolver(conditionalDonationSchema),
     defaultValues: {
-      amount: "5000",
+      amount: "",
       frequency: "once",
       anonymous: false,
       firstName: "",
@@ -98,8 +98,8 @@ const DonationForm = () => {
   // Función que se ejecuta con un formulario válido
   const onSubmit = async (data: DonationFormValues) => {
     // Verificar que el monto no sea inferior a $5.000
-    if (!data.amount || parseInt(data.amount) < 5000) {
-      setCustomAmountError("El monto mínimo de donación es de $5.000");
+    if (!data.amount || parseInt(data.amount) < 5) {
+      setCustomAmountError("El monto mínimo de donación es de $5");
       return;
     }
     
@@ -149,8 +149,8 @@ const DonationForm = () => {
       form.setValue("amount", value);
       
       // Validar que el monto no sea inferior a $5.000 si se ha ingresado algo
-      if (value && parseInt(value) < 5000) {
-        setCustomAmountError("El monto mínimo de donación es de $5.000");
+      if (value && parseInt(value) < 5) {
+        setCustomAmountError("El monto mínimo de donación es de $5");
       } else {
         setCustomAmountError(null);
       }
