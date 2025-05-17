@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { MercadoPagoConfig, Preference } from "mercadopago";
 import { z } from "zod";
+import api from "@/api";
+import { logger } from "@/lib/logger";
 
 // Esquema condicional que valida según si es anónimo o no
 const donationSchema = z.discriminatedUnion('anonymous', [
@@ -26,110 +27,68 @@ const donationSchema = z.discriminatedUnion('anonymous', [
   }),
 ]);
 
-// Configuración directa de MercadoPago usando el token de acceso de las variables de entorno
-const mercadopago = new MercadoPagoConfig({
-  accessToken: process.env.MP_ACCESS_TOKEN!
-});
-
-// Comisión de la plataforma (si aplica)
-const platformCommission = process.env.MP_PLATFORM_COMMISSION 
-  ? parseFloat(process.env.MP_PLATFORM_COMMISSION) 
-  : 0;
 
 export async function POST(request: Request) {
   try {
-    console.log('Recibiendo solicitud de donación');
+    logger.info('DONATIONS', 'Recibiendo solicitud de donación');
     
     // Obtenemos los datos de la donación
     const body = await request.json();
-    console.log('Datos recibidos:', body);
+    logger.debug('DONATIONS', 'Datos recibidos', { body });
     
     // Validamos los datos con Zod
     const validatedData = donationSchema.parse(body);
-    console.log('Datos validados correctamente');
+    logger.info('DONATIONS', 'Datos validados correctamente');
     
     // Convertimos el monto a número para MercadoPago
     const amount = parseFloat(validatedData.amount);
     
-    // Creamos un título descriptivo para la donación
-    const title = validatedData.frequency === "monthly" 
-      ? "Donación mensual a Fundación TEA Santa Cruz" 
-      : "Donación única a Fundación TEA Santa Cruz";
-    
     // Verificamos que el token de acceso esté definido
     if (!process.env.MP_ACCESS_TOKEN) {
-      console.error('MP_ACCESS_TOKEN no está definido');
+      logger.error('DONATIONS', 'MP_ACCESS_TOKEN no está definido');
       throw new Error('Token de acceso de MercadoPago no configurado');
     }
     
-    // Creamos la preferencia de pago directamente con MercadoPago
-    const preference = await new Preference(mercadopago).create({
-      body: {
-        items: [
-          {
-            id: "donation",
-            title,
-            quantity: 1,
-            unit_price: amount,
-            currency_id: "ARS"
-          }
-        ],
-        // Agregamos la comisión de la plataforma si está configurada
-        marketplace_fee: platformCommission,
-        // Solo incluimos datos del pagador si no es anónimo
-        ...(!validatedData.anonymous ? {
-          payer: {
-            name: validatedData.firstName,
-            surname: validatedData.lastName,
-            email: validatedData.email,
-            ...(validatedData.phone ? {
-              phone: {
-                number: validatedData.phone
-              }
-            } : {})
-          }
-        } : {}),
-        metadata: {
-          ...(!validatedData.anonymous ? {
-            donor_name: `${validatedData.firstName} ${validatedData.lastName}`,
-            donor_email: validatedData.email,
-            donor_phone: validatedData.phone,
-          } : {}),
-          donation_type: validatedData.frequency,
-          anonymous: validatedData.anonymous,
-        },
-        back_urls: {
-          success: `${process.env.APP_URL}/donaciones/gracias`,
-          failure: `${process.env.APP_URL}/donaciones`,
-          pending: `${process.env.APP_URL}/donaciones/pendiente`,
-        },
-        auto_return: "approved",
-        statement_descriptor: "Fundación TEA Santa Cruz",
-      },
-    });
+    // Preparamos los datos del usuario para la preferencia de pago
+    const userData = !validatedData.anonymous ? {
+      name: validatedData.firstName + ' ' + validatedData.lastName,
+      email: validatedData.email,
+      phone: validatedData.phone
+    } : {};
+    
+    // Creamos la preferencia de pago usando nuestra API centralizada
+    const preference = await api.mercadopago.createPreference(
+      amount,
+      validatedData.frequency === 'monthly' ? 'monthly' : 'one-time',
+      userData
+    );
+    
+    // Ya no creamos la donación en este punto, solo almacenamos la intención
+    // La donación se creará cuando MercadoPago confirme el pago a través del webhook
+    // o cuando el usuario sea redirigido a la página de agradecimiento
+    
+    // Log para rastrear el flujo
+    logger.info('DONATIONS', 'Iniciando proceso de pago, la donación se registrará tras la confirmación');
     
     // Devolvemos la URL de pago y el ID de preferencia
+    logger.info('DONATIONS', 'Preferencia de pago creada exitosamente', { 
+      preferenceId: preference.id 
+    });
+    
     return NextResponse.json({
       success: true,
       init_point: preference.init_point,
       preference_id: preference.id,
     });
   } catch (error) {
-    console.error("Error al procesar la donación:", error);
+    logger.error('DONATIONS', 'Error al procesar la donación', { error });
     
     // Obtenemos más detalles del error
-    let errorMessage = "Error desconocido";
-    let errorDetails = {};
-    
-    if (error instanceof Error) {
-      errorMessage = error.message;
-      errorDetails = {
-        name: error.name,
-        stack: error.stack
-      };
-    }
-    
-    console.error('Detalles del error:', errorDetails);
+    const errorMessage = error instanceof Error ? error.message : "Error desconocido";
+    const errorDetails = error instanceof Error ? {
+      name: error.name,
+      stack: error.stack
+    } : {};
     
     // Devolvemos un error
     return NextResponse.json(

@@ -1,46 +1,70 @@
 import { NextResponse } from "next/server";
-// Importamos el cliente centralizado de Prisma
+import api from "@/api";
+import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
 
-// Usamos el cliente centralizado de Prisma
+// Función auxiliar para obtener la estructura de una tabla usando Prisma
+async function getTableStructure(tableName: string) {
+  try {
+    let result = null;
+    
+    // Intentamos obtener un registro para ver la estructura
+    if (tableName === 'Donation') {
+      // Intentamos obtener la primera donación
+      const donation = await prisma.donation.findFirst();
+      if (donation) {
+        result = Object.keys(donation);
+      }
+    } else if (tableName === 'User') {
+      // Intentamos obtener el primer usuario
+      const user = await prisma.user.findFirst();
+      if (user) {
+        result = Object.keys(user);
+      }
+    }
+    
+    // Si no hay datos, devolvemos la estructura obtenida del modelo de Prisma
+    if (!result) {
+      // Estructura basada en el modelo de Prisma
+      if (tableName === 'Donation') {
+        result = ['id', 'amount', 'anonymous', 'donorName', 'donorEmail', 'phone', 'userId', 'frequency', 'paymentId', 'createdAt'];
+      } else if (tableName === 'User') {
+        result = ['id', 'email', 'name', 'role', 'createdAt'];
+      }
+    }
+    
+    return result || [];
+  } catch (error) {
+    logger.info('DONATIONS_CHECK', `Error al obtener estructura de ${tableName}`, { error });
+    return [];
+  }
+}
 
 export async function GET() {
   try {
-    console.log('Verificando donaciones en la base de datos...');
+    logger.info('DONATIONS_CHECK', 'Verificando donaciones en la base de datos...');
     
-    // Contar el total de donaciones
-    const count = await prisma.donation.count();
-    console.log(`Total de donaciones encontradas: ${count}`);
+    // Obtener todas las donaciones usando nuestra API centralizada
+    const donations = await api.donations.list();
     
-    // Obtener las últimas 10 donaciones
-    const donations = await prisma.donation.findMany({
-      take: 10,
-      orderBy: {
-        createdAt: 'desc'
-      },
-      include: {
-        user: true // Incluir información del usuario si existe
-      }
-    });
-    
-    console.log('Donaciones encontradas:', JSON.stringify(donations, null, 2));
+    logger.info('DONATIONS_CHECK', `Total de donaciones encontradas: ${donations.length}`);
+    logger.debug('DONATIONS_CHECK', 'Donaciones encontradas', { donations });
 
-    // Verificar la estructura de la tabla Donation
-    const donationSchema = await prisma.$queryRaw`
-      SELECT column_name, data_type 
-      FROM information_schema.columns 
-      WHERE table_name = 'Donation'
-    `;
-    console.log('Esquema de la tabla Donation:', donationSchema);
-
+    // Obtener información sobre la estructura de las tablas
+    const donationStructure = await getTableStructure('Donation');
+    const userStructure = await getTableStructure('User');
+    
     return NextResponse.json({
       success: true,
-      count,
-      donations,
-      schema: donationSchema
+      count: donations.length,
+      donations: donations.slice(0, 10), // Limitamos a 10 para la respuesta
+      schema: {
+        Donation: donationStructure,
+        User: userStructure
+      }
     });
   } catch (error) {
-    console.error("Error al obtener donaciones:", error);
+    logger.error('DONATIONS_CHECK', 'Error al obtener donaciones', { error });
     return NextResponse.json(
       { 
         success: false, 
@@ -48,7 +72,5 @@ export async function GET() {
       },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }

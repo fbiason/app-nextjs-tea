@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 // Importamos el cliente centralizado de Prisma en lugar de crear una nueva instancia
 import { prisma } from "@/lib/prisma";
 import { MercadoPagoConfig, Payment } from "mercadopago";
-import { saveLog } from './debug';
+import { logger } from '@/lib/logger';
 
 // Inicializar Prisma Client para poder registrar donaciones directamente
 // Ya no necesitamos crear una nueva instancia de PrismaClient aquí
@@ -19,32 +19,34 @@ const mercadopago = new MercadoPagoConfig({
 
 // Endpoint GET para verificar que la raíz responde correctamente
 export async function GET(request: Request) {
-  console.log('🔔 RAIZ GET: Solicitud recibida');
+  logger.info('API_ROOT', '🔔 Solicitud GET recibida');
   
   try {
     const url = new URL(request.url);
-    console.log('URL completa GET:', request.url);
-    console.log('Parámetros GET:', JSON.stringify(Object.fromEntries(url.searchParams.entries())));
+    logger.debug('API_ROOT', 'URL completa GET', { url: request.url });
+    logger.debug('API_ROOT', 'Parámetros GET', { params: Object.fromEntries(url.searchParams.entries()) });
     
     return NextResponse.json({ success: true, message: "Endpoint raíz funcionando correctamente" });
   } catch (error) {
-    console.error('Error en GET:', error);
+    logger.logError('API_ROOT', error);
     return NextResponse.json({ error: "Error processing GET request" });
   }
 }
 
 // Endpoint POST para recibir notificaciones de MercadoPago
 export async function POST(request: Request) {
-  console.log('🔔 RAIZ POST: Notificación recibida');
-  console.log('Headers completos:', JSON.stringify(Object.fromEntries(request.headers.entries())));
+  logger.info('API_ROOT', '🔔 Notificación POST recibida');
+  logger.debug('API_ROOT', 'Headers completos', { headers: Object.fromEntries(request.headers.entries()) });
   
   try {
     const url = new URL(request.url);
     const searchParams = url.searchParams;
-    console.log('URL completa:', request.url);
-    console.log('Método:', request.method);
-    console.log('Headers:', JSON.stringify(Object.fromEntries(request.headers.entries()), null, 2));
-    console.log('Query params completos:', JSON.stringify(Object.fromEntries(searchParams.entries()), null, 2));
+    logger.debug('API_ROOT', 'Detalles de la solicitud', {
+      url: request.url,
+      method: request.method,
+      headers: Object.fromEntries(request.headers.entries()),
+      params: Object.fromEntries(searchParams.entries())
+    });
     
     // Intentar obtener el body de la petición si es necesario
     let requestBody;
@@ -66,37 +68,36 @@ export async function POST(request: Request) {
     const id = searchParams.get('id') || searchParams.get('payment_id') || searchParams.get('collection_id');
     const topic = searchParams.get('topic') || 'payment'; // Asumimos 'payment' si no viene el topic
     
-    console.log(`Parámetros identificados: id=${id}, topic=${topic}`);
-    console.log('Query params completos:', JSON.stringify(Object.fromEntries(searchParams.entries()), null, 2));
+    logger.info('API_ROOT', `Parámetros identificados: id=${id}, topic=${topic}`);
+    logger.debug('API_ROOT', 'Query params completos', { params: Object.fromEntries(searchParams.entries()) });
     
     if (id) { // Solo verificamos que haya un ID, no importa el topic
-      console.log(`🔄 RAIZ: Procesando notificación de MercadoPago (ID: ${id})`);
+      logger.info('API_ROOT', `🔄 Procesando notificación de MercadoPago (ID: ${id})`);
       
       try {
         // Intentamos obtener el body de la petición
         let requestBody;
         try {
           requestBody = await request.json();
-          console.log('📦 RAIZ: Body de la petición:', JSON.stringify(requestBody, null, 2));
+          logger.debug('API_ROOT', 'Body de la petición', { body: requestBody });
         } catch (bodyError) {
-          console.log('⚠️ RAIZ: No se pudo obtener el body de la petición:', (bodyError as Error).message);
+          logger.warning('API_ROOT', 'No se pudo obtener el body de la petición', { error: (bodyError as Error).message });
           requestBody = { data: { id }, type: "payment" };
         }
         
         // Procesamos el pago directamente aquí en lugar de redirigir
-        console.log(`🔍 RAIZ: Obteniendo información del pago ID: ${id}`);
+        logger.info('API_ROOT', `🔍 Obteniendo información del pago ID: ${id}`);
         
         try {
           // Obtener información del pago desde MercadoPago
           const payment = await new Payment(mercadopago).get({ id });
-          console.log('💰 RAIZ: Información del pago obtenida con éxito');
-          console.log(`💲 RAIZ: Estado del pago: ${payment.status}`);
-          console.log('Detalles completos del pago:', JSON.stringify(payment, null, 2));
-          console.log('Metadatos:', JSON.stringify(payment.metadata || {}, null, 2));
+          logger.info('API_ROOT', '💰 Información del pago obtenida con éxito');
+          logger.info('API_ROOT', `💲 Estado del pago: ${payment.status}`);
+          logger.debug('API_ROOT', '📊 Metadatos del pago', { metadata: payment.metadata || {} });
           
           // Procesar el pago según su estado
           if (payment.status === "approved") {
-            console.log('✅ RAIZ: Pago aprobado, guardando en base de datos...');
+            logger.info('API_ROOT', '✅ Pago aprobado, procesando donación...');
             
             try {
               // Intentar obtener metadatos primero (preferencia)
@@ -109,7 +110,7 @@ export async function POST(request: Request) {
               
               // Verificar si hay metadatos disponibles
               if (payment.metadata) {
-                console.log('📊 RAIZ: Usando metadatos del pago:', JSON.stringify(payment.metadata, null, 2));
+                logger.debug('API_ROOT', '📊 Usando metadatos del pago', { metadata: payment.metadata });
                 
                 const metadata = payment.metadata as {
                   donor_name?: string;
@@ -125,7 +126,7 @@ export async function POST(request: Request) {
                 frequency = metadata.donation_type || "once";
               } else {
                 // Si no hay metadatos, intentamos obtener datos del pagador
-                console.log('⚠️ RAIZ: No hay metadatos, usando datos del pagador');
+                logger.warning('API_ROOT', '⚠️ No hay metadatos, usando datos del pagador');
                 
                 if (payment.payer) {
                   const payer = payment.payer as { 
@@ -148,8 +149,8 @@ export async function POST(request: Request) {
                 }
               }
               
-              console.log(`👤 RAIZ: Datos del donante: ${donorName}, ${donorEmail}, ${donorPhone}`);
-              console.log(`💵 RAIZ: Monto: ${amount}, Frecuencia: ${frequency}`);
+              logger.info('API_ROOT', `👤 Datos del donante: ${donorName}, ${donorEmail}, ${donorPhone}`);
+              logger.info('API_ROOT', `💵 Monto: ${amount}, Frecuencia: ${frequency}`);
 
               // Registrar usuario si tenemos email
               let userId = null;
@@ -161,7 +162,7 @@ export async function POST(request: Request) {
                   });
                   
                   if (existingUser) {
-                    console.log(`👤 RAIZ: Usuario existente encontrado: ${existingUser.id}`);
+                    logger.info('API_ROOT', `👤 Usuario existente encontrado: ${existingUser.id}`);
                     userId = existingUser.id;
                   } else {
                     // Crear nuevo usuario
@@ -172,16 +173,16 @@ export async function POST(request: Request) {
                         role: 'DONOR'
                       }
                     });
-                    console.log(`👱 RAIZ: Nuevo usuario creado: ${newUser.id}`);
+                    logger.info('API_ROOT', `👱 Nuevo usuario creado: ${newUser.id}`);
                     userId = newUser.id;
                   }
                 } catch (userError) {
-                  console.error('❌ RAIZ: Error al procesar el usuario:', userError);
+                  logger.logError('API_ROOT', userError);
                 }
               }
               
               // Registrar la donación
-              saveLog('RAIZ: Intentando crear donación con los siguientes datos:', {
+              logger.info('API_ROOT', 'Intentando crear donación', {
                 amount,
                 anonymous: isAnonymous,
                 donorName,
@@ -207,31 +208,29 @@ export async function POST(request: Request) {
                   }
                 });
                 
-                saveLog(`✅ RAIZ: Donación guardada con éxito. ID: ${donation.id}`, donation);
+                logger.info('API_ROOT', `✅ Donación guardada con éxito. ID: ${donation.id}`, { donation });
               } catch (createError) {
-                saveLog('❌ RAIZ: Error al crear la donación:', createError);
-                if (createError instanceof Error) {
-                  saveLog('Stack trace:', createError.stack);
-                }
+                logger.logError('API_ROOT', createError, true);
                 throw createError; // Re-lanzar para que se maneje en el catch principal
               }
               
             } catch (dbError) {
-              console.error('❌ RAIZ: Error guardando la donación:', dbError);
+              logger.logError('API_ROOT', dbError, true);
             }
           } else {
-            console.log(`ℹ️ RAIZ: Pago no aprobado. Estado: ${payment.status}`);
+            logger.info('API_ROOT', `ℹ️ Pago no aprobado. Estado: ${payment.status}`);
           }
           
         } catch (paymentError) {
-          console.error('❌ RAIZ: Error al obtener información del pago:', paymentError);
+          logger.logError('API_ROOT', paymentError);
         }
         
         // Devolvemos un 200 OK para que MercadoPago sepa que recibimos la notificación
+        logger.info('API_ROOT', '✅ Notificación procesada correctamente');
         return NextResponse.json({ success: true });
         
       } catch (error) {
-        console.error('❌ RAIZ: Error general al procesar notificación:', error);
+        logger.logError('API_ROOT', error, true);
         
         // En caso de error, devolvemos un 200 para que MercadoPago no reintente
         return NextResponse.json({
@@ -244,14 +243,14 @@ export async function POST(request: Request) {
     }
     
     // Si no es una notificación de MercadoPago válida
-    console.log('⚠️ RAIZ: No es una notificación de MercadoPago válida');
+    logger.warning('API_ROOT', '⚠️ No es una notificación de MercadoPago válida');
     return NextResponse.json({
       success: false,
       error: 'Notificación no válida',
     }, { status: 200 }); // Devolvemos 200 para evitar reintentos
     
   } catch (error) {
-    console.error('❌ RAIZ: Error inesperado:', error);
+    logger.logError('API_ROOT', error, true);
     return NextResponse.json({
       success: false, 
       error: 'Error inesperado'

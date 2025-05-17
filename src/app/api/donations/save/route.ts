@@ -32,6 +32,80 @@ export async function POST(request: Request) {
     
     if (existingDonation) {
       console.log('Donación ya registrada:', existingDonation);
+      
+      // Si la donación existe pero faltan datos del donante, los actualizamos
+      if ((!existingDonation.donorName || !existingDonation.donorEmail || !existingDonation.phone || !existingDonation.userId) && !data.anonymous) {
+        console.log('Actualizando datos de donante faltantes');
+        
+        const donorName = data.name || `${data.firstName || ''} ${data.lastName || ''}`.trim();
+        
+        // Procesamos el usuario si tenemos email
+        let userId = existingDonation.userId;
+        if (data.email && !userId) {
+          try {
+            console.log('Procesando usuario con email:', data.email);
+            // Buscamos si ya existe un usuario con este email
+            const existingUser = await prisma.user.findUnique({
+              where: { email: data.email }
+            });
+            
+            if (existingUser) {
+              console.log('Usuario existente encontrado:', existingUser.id);
+              userId = existingUser.id;
+            } else {
+              console.log('Creando nuevo usuario para donación existente');
+              // Creamos un nuevo usuario
+              const newUser = await prisma.user.create({
+                data: {
+                  email: data.email,
+                  name: donorName,
+                  role: 'DONOR'
+                }
+              });
+              userId = newUser.id;
+              console.log('Nuevo usuario creado:', userId);
+            }
+          } catch (userError) {
+            console.error('Error al procesar usuario:', userError);
+            // No bloqueamos la actualización de la donación si falla la creación del usuario
+          }
+        }
+        
+        const updatedDonation = await prisma.donation.update({
+          where: { id: existingDonation.id },
+          data: {
+            donorName: donorName || existingDonation.donorName,
+            donorEmail: data.email || existingDonation.donorEmail,
+            phone: data.phone || existingDonation.phone,
+            userId: userId || existingDonation.userId
+          }
+        });
+        
+        console.log('Donación actualizada con datos del donante:', updatedDonation);
+        
+        // Enviar correo electrónico ahora que tenemos los datos completos
+        try {
+          console.log('Enviando notificación por correo a administradores');
+          await sendDonationNotificationToAdmins(updatedDonation);
+          console.log('Notificación enviada a administradores');
+          
+          if (data.email) {
+            console.log('Enviando correo de agradecimiento al donante:', data.email);
+            await sendThankYouEmailToDonor(updatedDonation);
+            console.log('Correo de agradecimiento enviado');
+          }
+        } catch (emailError) {
+          console.error('Error al enviar notificaciones por correo:', emailError);
+        }
+        
+        return NextResponse.json({
+          success: true,
+          message: "Donación actualizada con información del donante",
+          donation: updatedDonation
+        });
+      }
+      
+      // Si la donación ya tiene todos los datos o es anónima, simplemente devolvemos la existente
       return NextResponse.json({
         success: true,
         message: "Donación ya registrada",
@@ -71,30 +145,56 @@ export async function POST(request: Request) {
       }
     }
     
-    // Creamos la donación
-    console.log('Creando donación con datos:', {
-      amount: parseFloat(data.amount),
-      anonymous: data.anonymous || false,
-      donorName: data.anonymous ? null : (data.name || `${data.firstName || ''} ${data.lastName || ''}`.trim()),
-      frequency: data.frequency || "once",
-      paymentId: data.paymentId
+    // Verificamos una última vez si ya existe la donación
+    // Esto evita condiciones de carrera donde podría haberse creado 
+    // entre nuestra verificación inicial y ahora
+    const finalCheckDonation = await prisma.donation.findUnique({
+      where: { paymentId: data.paymentId }
     });
     
-    const donation = await prisma.donation.create({
-      data: {
+    let donation;
+    if (finalCheckDonation) {
+      console.log('Verificación final: Donación ya existe, actualizando datos:', finalCheckDonation.id);
+      
+      // Actualizamos los datos del donante si no están completos
+      donation = await prisma.donation.update({
+        where: { id: finalCheckDonation.id },
+        data: {
+          donorName: (!finalCheckDonation.donorName && !data.anonymous) ? 
+            (data.name || `${data.firstName || ''} ${data.lastName || ''}`.trim()) : undefined,
+          donorEmail: (!finalCheckDonation.donorEmail && !data.anonymous) ? data.email : undefined,
+          phone: (!finalCheckDonation.phone && !data.anonymous) ? data.phone : undefined,
+          userId: !finalCheckDonation.userId ? userId : undefined
+        }
+      });
+      
+      console.log('Donación actualizada con datos adicionales:', donation.id);
+    } else {
+      // Si realmente no existe, creamos la donación
+      console.log('Verificación final: Creando donación con datos:', {
         amount: parseFloat(data.amount),
         anonymous: data.anonymous || false,
         donorName: data.anonymous ? null : (data.name || `${data.firstName || ''} ${data.lastName || ''}`.trim()),
-        donorEmail: data.anonymous ? null : data.email,
-        phone: data.anonymous ? null : data.phone,
         frequency: data.frequency || "once",
-        userId,
-        paymentId: data.paymentId,
-        createdAt: new Date()
-      }
-    });
-    
-    console.log('Donación creada exitosamente:', donation.id);
+        paymentId: data.paymentId
+      });
+      
+      donation = await prisma.donation.create({
+        data: {
+          amount: parseFloat(data.amount),
+          anonymous: data.anonymous || false,
+          donorName: data.anonymous ? null : (data.name || `${data.firstName || ''} ${data.lastName || ''}`.trim()),
+          donorEmail: data.anonymous ? null : data.email,
+          phone: data.anonymous ? null : data.phone,
+          frequency: data.frequency || "once",
+          userId,
+          paymentId: data.paymentId,
+          createdAt: new Date()
+        }
+      });
+      
+      console.log('Donación creada exitosamente:', donation.id);
+    }
     
     // Enviar correo electrónico a los administradores
     try {
