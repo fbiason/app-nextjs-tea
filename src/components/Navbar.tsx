@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 
 const navigationLinks = [
   { name: "Nosotros", href: "#nosotros" },
@@ -14,6 +15,17 @@ const navigationLinks = [
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const pathname = usePathname();
+  
+  // Función para determinar la URL correcta según la página actual
+  const getHref = (link: {name: string, href: string}) => {
+    // Si el enlace ya es una ruta completa o estamos en la página principal, devolvemos el href original
+    if (!link.href.startsWith('#') || pathname === '/') {
+      return link.href;
+    }
+    // Si estamos en otra página y el enlace es un ancla, redirigimos a la página principal con el ancla
+    return `/${link.href}`;
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -62,7 +74,7 @@ const Navbar = () => {
             {navigationLinks.map((link) => (
               <Link
                 key={link.name}
-                href={link.href}
+                href={getHref(link)}
                 className="font-montserrat text-gray-700 hover:text-tea-blue hover:font-semibold transition-all duration-300"
                 scroll={link.href.startsWith('#')}
               >
@@ -82,7 +94,7 @@ const Navbar = () => {
             {navigationLinks.map((link) => (
               <Link
                 key={link.name}
-                href={link.href}
+                href={getHref(link)}
                 className="font-montserrat text-gray-700 hover:text-tea-blue text-lg transition-colors duration-300"
                 scroll={link.href.startsWith('#')}
                 onClick={() => setIsOpen(false)}

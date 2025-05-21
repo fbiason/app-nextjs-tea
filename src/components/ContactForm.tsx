@@ -4,8 +4,12 @@ import React from 'react';
 import { useForm, ValidationError } from '@formspree/react';
 import { Button } from './ui/button';
 
+// Formulario configurado para enviar a fund.teasantacruz@gmail.com
+// usando el endpoint: https://formspree.io/f/mkgredzg
+
 const ContactForm = () => {
-  const [state, handleSubmit] = useForm('xqapgzao');
+  // Usando el nuevo endpoint proporcionado
+  const [state, handleSubmit] = useForm('mkgredzg');
 
   if (state.succeeded) {
     return (

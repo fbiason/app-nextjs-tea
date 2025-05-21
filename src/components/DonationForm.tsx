@@ -98,8 +98,8 @@ const DonationForm = () => {
   // Función que se ejecuta con un formulario válido
   const onSubmit = async (data: DonationFormValues) => {
     // Verificar que el monto no sea inferior a $5.000
-    if (!data.amount || parseInt(data.amount) < 5) {
-      setCustomAmountError("El monto mínimo de donación es de $5");
+    if (!data.amount || parseInt(data.amount) < 5000) {
+      setCustomAmountError("El monto mínimo de donación es de $5.000");
       return;
     }
     
@@ -149,8 +149,8 @@ const DonationForm = () => {
       form.setValue("amount", value);
       
       // Validar que el monto no sea inferior a $5.000 si se ha ingresado algo
-      if (value && parseInt(value) < 5) {
-        setCustomAmountError("El monto mínimo de donación es de $5");
+      if (value && parseInt(value) < 5000) {
+        setCustomAmountError("El monto mínimo de donación es de $5.000");
       } else {
         setCustomAmountError(null);
       }

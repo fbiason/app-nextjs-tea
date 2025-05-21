@@ -63,7 +63,8 @@ const DonationPage = () => {
 <section className="py-12 bg-white">
   <div className="container mx-auto px-4">
     <div className="max-w-6xl mx-auto">
-      <h2 className="text-2xl font-bold text-tea-blue mb-6 text-center">Nuestras Acciones</h2>
+      <h2 className="text-4xl font-bold mb-6 text-center"><span className="text-[#F8D468]">Nuestras</span> <span className="text-[#E87F2F]">Acciones</span></h2>
+      <div className="w-20 h-1 mx-auto mb-6" style={{ backgroundColor: '#99b169' }}></div>
       <p className="text-lg text-gray-700 mb-8 text-center max-w-4xl mx-auto">
         Desde Fundación TEA Santa Cruz desarrollamos acciones que promueven la inclusión, el acceso a derechos y el fortalecimiento de redes de apoyo para personas con Trastorno del Espectro Autista (TEA) y sus familias.
       </p>
